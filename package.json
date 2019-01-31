@@ -1,0 +1,23 @@
+
+{
+  "name": "react-native-tensorio",
+  "version": "0.0.1",
+  "description": "Machine Learning for React Native with TensorIO",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "react-native",
+    "react-component",
+    "ios",
+    "machine learning",
+    "tensorflow"
+  ],
+  "author": "doc.ai",
+  "license": "Apache 2.0",
+  "peerDependencies": {
+    "react-native": "^0.41.2",
+    "react-native-windows": "0.41.0-rc.1"
+  }
+}
