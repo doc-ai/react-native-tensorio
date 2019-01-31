@@ -129,10 +129,28 @@ Windows support is unplanned.
 -->
 
 ## Usage
-```javascript
-import RNTensorIO from 'react-native-tensorio';
 
-// TODO: What to do with the module?
-RNTensorIO;
+TensorIO uses model bundles to wrap an underlying model and a description of its inputs and outputs along with any assets the model requires, such as text labels for image classification outputs ([learn more](https://github.com/doc-ai/TensorIO)). They are simply folders with the *.tfbundle* extension. You will need to add these bundles to your react native application in order to perform inference with the underlying models.
+
+Add the TensorIO bundle to your application in Xcode. Simply drag the bundle into the project under the project's primary folder (it will be the folder with the same name as your project). Make sure to check *Copy items if needed*, select *Create folder references*, and that your build target is selected.
+
+Then in javascript, import `NativeModules` and access `RNTensorIO` from that module. Load the model by providing its name (or path if the model is in a project subdirectory), run inference with it, and then unload it when you are done to free the underlying resources:
+
+```javascript
+import {NativeModules} from 'react-native';
+
+var model = NativeModules.RNTensorIO;
+
+model.load('model.tfbundle');
+
+model.run({
+  'input_name': [1,2,3,4]
+}, (error, results) => {
+  console.log(results)
+});
+
+model.unload();
 ```
+
+A more complete description of how to use the module is forthcoming.
   
