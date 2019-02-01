@@ -10,7 +10,7 @@ Machine learning for your React Native projects, using TensorIO and TensorFlow L
 
 For the time being, install directly from this repository:
 
-`$ npm install git://github.com/doc-ai/react-native-tensorio.git --save`
+`$ npm install git+ssh://git@github.com:doc-ai/react-native-tensorio.git --save`
 
 ### Mostly automatic installation
 
