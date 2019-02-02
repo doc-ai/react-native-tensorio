@@ -12,8 +12,6 @@
 
 @end
 
-// MARK: -
-
 @implementation RNTensorIO
 
 RCT_EXPORT_MODULE();
@@ -38,8 +36,20 @@ RCT_EXPORT_METHOD(unload) {
 
 RCT_EXPORT_METHOD(run:(NSDictionary*)input callback:(RCTResponseSenderBlock)callback) {
     
+    // Ensure that the provided keys match the model's expected keys, or return an error
+    
+    NSSet<NSString*> *expectedKeys = [NSSet setWithArray:[self inputKeysForModel:self.model]];
+    NSSet<NSString*> *providedKeys = [NSSet setWithArray:input.allKeys];
+    
+    if (![expectedKeys isEqualToSet:providedKeys]) {
+        NSString *error = [NSString stringWithFormat:@"Provided inputs %@ don't match model's expected inputs %@", providedKeys, expectedKeys];
+        callback(@[error, NSNull.null]);
+        return;
+    }
+    
     // TODO: convert pixel buffer inputs
-    // TODO: error handling
+    
+    // Perform inference and return results
     
     NSDictionary *results = (NSDictionary*)[self.model runOn:input];
     callback(@[NSNull.null, results]);
@@ -47,8 +57,17 @@ RCT_EXPORT_METHOD(run:(NSDictionary*)input callback:(RCTResponseSenderBlock)call
 
 // MARK: -
 
-- (dispatch_queue_t)methodQueue
-{
+- (NSArray<NSString*>*)inputKeysForModel:(id<TIOModel>)model {
+    NSMutableArray<NSString*> *keys = [[NSMutableArray alloc] init];
+    for (TIOLayerInterface *input in model.inputs) {
+        [keys addObject:input.name];
+    }
+    return keys.copy;
+}
+
+// MARK: -
+
+- (dispatch_queue_t)methodQueue {
     return dispatch_get_main_queue();
 }
 
