@@ -10,7 +10,7 @@ Pod::Spec.new do |s|
   s.source      = { :git => 'https://github.com/doc-ai/react-native-tensorio.git', :tag => s.version.to_s }
   
   s.ios.deployment_target   = '9.3'
-  s.source_files            = 'RNTensorIO/**/*.{h,m}'
+  s.source_files            = 'RNTensorIO/**/*.{h,m,mm}'
   s.requires_arc            = true
   s.static_framework        = true
 

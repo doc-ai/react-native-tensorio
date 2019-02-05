@@ -152,5 +152,61 @@ model.run({
 model.unload();
 ```
 
+### Image Models
+
+Models that take image inputs must receive those inputs in a pixel buffer format. A pixel buffer is an unrolled vector of bytes corresponding to the red-green-blue-alpha (RGBA) values that define the pixel representation of an image. Image models are trained on these kinds of representations and expect them for inputs.
+
+React Native represents byte data in javascript as a base64 encoded string. In order to perform inference with an image model you must provide this base64 encoded string to the run function as well as a description of the underlying bytes that includes the width, height, and format of the image they represent. Pack these four values into a dictionary and use it as the key-value you send to the run function.
+
+For example:
+
+```js
+
+// Base64 encoded bytes from a pixel buffer
+var data = ...;
+
+// Image width
+var width = 640;
+
+// Image height
+var height = 480;
+
+// Use 'ARGB' for most images or 'BGRA' for data directly from the camera
+// You may also use 'PNG' or 'JPG' if you have image data in that format
+var format = 'ARGB';
+
+// Image orientation. Will normally be 'UP' buy may be 'RIGHT' if data is coming 
+// directly from the camera. If the orientation is not specified it is assumed
+// to be 'RIGHT'
+var orientation = 'UP';
+
+model.run({
+  'input': {
+    'data': data,
+    'format': format,
+    'width': width,
+    'height': height,
+    'orientation': orientation
+  }
+}, (error, results) => {
+  console.log(results)
+});
+
+```
+
 A more complete description of how to use the module is forthcoming.
+
+TODO: support reading images directly from a path, as most react native modules work with file paths directly instead of round trip base64 encoded string.
+
   
+```js
+model.run({
+  'input': {
+    'data': path,
+    'format': 'FILE'
+  }
+}, (error, results) => {
+  console.log(results)
+});
+```
+```

@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		B3E7B58A1CC2AC0600A0062D /* RNTensorIO.mm in Sources */ = {isa = PBXBuildFile; fileRef = B3E7B5891CC2AC0600A0062D /* RNTensorIO.mm */; };
+		E30C3B8722091F05006D99F3 /* RNPixelBufferUtilities.mm in Sources */ = {isa = PBXBuildFile; fileRef = E30C3B8622091F05006D99F3 /* RNPixelBufferUtilities.mm */; };
 		E39B872D22028BF9008DDE9B /* TensorIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E39B872C22028BF9008DDE9B /* TensorIO.framework */; };
 /* End PBXBuildFile section */
 
@@ -27,6 +28,8 @@
 		134814201AA4EA6300B7C361 /* libRNTensorIO.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRNTensorIO.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		B3E7B5881CC2AC0600A0062D /* RNTensorIO.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RNTensorIO.h; sourceTree = "<group>"; };
 		B3E7B5891CC2AC0600A0062D /* RNTensorIO.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RNTensorIO.mm; sourceTree = "<group>"; };
+		E30C3B8522091F05006D99F3 /* RNPixelBufferUtilities.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RNPixelBufferUtilities.h; sourceTree = "<group>"; };
+		E30C3B8622091F05006D99F3 /* RNPixelBufferUtilities.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = RNPixelBufferUtilities.mm; sourceTree = "<group>"; };
 		E39B872C22028BF9008DDE9B /* TensorIO.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = TensorIO.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -55,6 +58,8 @@
 			children = (
 				B3E7B5881CC2AC0600A0062D /* RNTensorIO.h */,
 				B3E7B5891CC2AC0600A0062D /* RNTensorIO.mm */,
+				E30C3B8522091F05006D99F3 /* RNPixelBufferUtilities.h */,
+				E30C3B8622091F05006D99F3 /* RNPixelBufferUtilities.mm */,
 				134814211AA4EA7D00B7C361 /* Products */,
 				E39B872B22028BF9008DDE9B /* Frameworks */,
 			);
@@ -95,7 +100,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 0830;
-				ORGANIZATIONNAME = Facebook;
+				ORGANIZATIONNAME = doc.ai;
 				TargetAttributes = {
 					58B511DA1A9E6C8500147676 = {
 						CreatedOnToolsVersion = 6.1.1;
@@ -125,6 +130,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B3E7B58A1CC2AC0600A0062D /* RNTensorIO.mm in Sources */,
+				E30C3B8722091F05006D99F3 /* RNPixelBufferUtilities.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
