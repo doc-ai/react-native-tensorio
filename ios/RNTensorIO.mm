@@ -14,27 +14,33 @@
 
 #import "TensorIO.h"
 
-typedef NS_ENUM(NSInteger, TIOImageDataType) {
-    TIOImageDataTypeUnknown,
-    TIOImageDataTypeARGB,
-    TIOImageDataTypeBGRA,
-    TIOImageDataTypeJPG,
-    TIOImageDataTypePNG,
-    TIOImageDataTypeFile
+static NSString * const RNTIOImageKeyData = @"RNTIOImageKeyData";
+static NSString * const RNTIOImageKeyFormat = @"RNTIOImageKeyFormat";
+static NSString * const RNTIOImageKeyWidth = @"RNTIOImageKeyWidth";
+static NSString * const RNTIOImageKeyHeight = @"RNTIOImageKeyHeight";
+static NSString * const RNTIOImageKeyOrientation = @"RNTIOImageKeyOrientation";
+
+typedef NS_ENUM(NSInteger, RNTIOImageDataType) {
+    RNTIOImageDataTypeUnknown,
+    RNTIOImageDataTypeARGB,
+    RNTIOImageDataTypeBGRA,
+    RNTIOImageDataTypeJPG,
+    RNTIOImageDataTypePNG,
+    RNTIOImageDataTypeFile
 };
 
 // MARK: -
 
 @implementation RCTConvert (RNTensorIOEnumerations)
 
-RCT_ENUM_CONVERTER(TIOImageDataType, (@{
-    @"imageTypeUnknown": @(TIOImageDataTypeUnknown),
-    @"imageTypeARGB":    @(TIOImageDataTypeARGB),
-    @"imageTypeBGRA":    @(TIOImageDataTypeBGRA),
-    @"imageTypeJPG":     @(TIOImageDataTypeJPG),
-    @"imageTypePNG":     @(TIOImageDataTypePNG),
-    @"imageTypeFile":    @(TIOImageDataTypeFile)
-}), TIOImageDataTypeUnknown, integerValue);
+RCT_ENUM_CONVERTER(RNTIOImageDataType, (@{
+    @"imageTypeUnknown": @(RNTIOImageDataTypeUnknown),
+    @"imageTypeARGB":    @(RNTIOImageDataTypeARGB),
+    @"imageTypeBGRA":    @(RNTIOImageDataTypeBGRA),
+    @"imageTypeJPG":     @(RNTIOImageDataTypeJPG),
+    @"imageTypePNG":     @(RNTIOImageDataTypePNG),
+    @"imageTypeFile":    @(RNTIOImageDataTypeFile)
+}), RNTIOImageDataTypeUnknown, integerValue);
 
 RCT_ENUM_CONVERTER(CGImagePropertyOrientation, (@{
     @"imageOrientationUp":              @(kCGImagePropertyOrientationUp),
@@ -64,11 +70,11 @@ RCT_EXPORT_MODULE();
 RCT_EXPORT_METHOD(load:(NSString*)name) {
     [self unload];
     
-    if ([name.pathExtension isEqualToString:@"tfbundle"]) {
+    if ([name.pathExtension isEqualToString:kTFModelBundleExtension]) {
         name = [name stringByDeletingPathExtension];
     }
     
-    NSString *path = [NSBundle.mainBundle pathForResource:name ofType:@"tfbundle"];
+    NSString *path = [NSBundle.mainBundle pathForResource:name ofType:kTFModelBundleExtension];
     TIOModelBundle *bundle = [[TIOModelBundle alloc] initWithPath:path];
     
     self.model = bundle.newModel;
@@ -99,6 +105,8 @@ RCT_EXPORT_METHOD(run:(NSDictionary*)inputs callback:(RCTResponseSenderBlock)cal
     // Perform inference
     
     NSDictionary *results = (NSDictionary*)[self.model runOn:preparedInputs];
+    
+    // TODO: convert image outputs to byte64 data
     
     // Return results
     
@@ -139,22 +147,22 @@ RCT_EXPORT_METHOD(run:(NSDictionary*)inputs callback:(RCTResponseSenderBlock)cal
     
     // Converts byte64 encoded image data or reads image data from the file system
     
-    TIOImageDataType format = (TIOImageDataType)[input[@"format"] integerValue];
+    RNTIOImageDataType format = (RNTIOImageDataType)[input[RNTIOImageKeyFormat] integerValue];
     CVPixelBufferRef pixelBuffer;
     
     switch (format) {
-    case TIOImageDataTypeUnknown: {
+    case RNTIOImageDataTypeUnknown: {
         // TODO: raise an error
         pixelBuffer = NULL;
         }
         break;
     
-    case TIOImageDataTypeARGB: {
+    case RNTIOImageDataTypeARGB: {
         OSType imageFormat = kCVPixelFormatType_32ARGB;
-        NSUInteger width = [input[@"width"] unsignedIntegerValue];
-        NSUInteger height = [input[@"height"] unsignedIntegerValue];
+        NSUInteger width = [input[RNTIOImageKeyWidth] unsignedIntegerValue];
+        NSUInteger height = [input[RNTIOImageKeyHeight] unsignedIntegerValue];
         
-        NSString *base64 = input[@"data"];
+        NSString *base64 = input[RNTIOImageKeyData];
         NSData *data = [RCTConvert NSData:base64];
         unsigned char *bytes = (unsigned char *)data.bytes;
         
@@ -164,12 +172,12 @@ RCT_EXPORT_METHOD(run:(NSDictionary*)inputs callback:(RCTResponseSenderBlock)cal
         }
         break;
         
-    case TIOImageDataTypeBGRA: {
+    case RNTIOImageDataTypeBGRA: {
         OSType imageFormat = kCVPixelFormatType_32BGRA;
-        NSUInteger width = [input[@"width"] unsignedIntegerValue];
-        NSUInteger height = [input[@"height"] unsignedIntegerValue];
+        NSUInteger width = [input[RNTIOImageKeyWidth] unsignedIntegerValue];
+        NSUInteger height = [input[RNTIOImageKeyHeight] unsignedIntegerValue];
         
-        NSString *base64 = input[@"data"];
+        NSString *base64 = input[RNTIOImageKeyData];
         NSData *data = [RCTConvert NSData:base64];
         unsigned char *bytes = (unsigned char *)data.bytes;
         
@@ -179,8 +187,8 @@ RCT_EXPORT_METHOD(run:(NSDictionary*)inputs callback:(RCTResponseSenderBlock)cal
         }
         break;
         
-    case TIOImageDataTypeJPG: {
-        NSString *base64 = input[@"data"];
+    case RNTIOImageDataTypeJPG: {
+        NSString *base64 = input[RNTIOImageKeyData];
         UIImage *image = [RCTConvert UIImage:base64];
         
         pixelBuffer = image.pixelBuffer;
@@ -188,8 +196,8 @@ RCT_EXPORT_METHOD(run:(NSDictionary*)inputs callback:(RCTResponseSenderBlock)cal
         }
         break;
     
-    case TIOImageDataTypePNG: {
-        NSString *base64 = input[@"data"];
+    case RNTIOImageDataTypePNG: {
+        NSString *base64 = input[RNTIOImageKeyData];
         UIImage *image = [RCTConvert UIImage:base64];
         
         pixelBuffer = image.pixelBuffer;
@@ -197,8 +205,8 @@ RCT_EXPORT_METHOD(run:(NSDictionary*)inputs callback:(RCTResponseSenderBlock)cal
         }
         break;
     
-    case TIOImageDataTypeFile: {
-        NSString *path = input[@"data"];
+    case RNTIOImageDataTypeFile: {
+        NSString *path = input[RNTIOImageKeyData];
         NSURL *URL = [NSURL fileURLWithPath:path];
         UIImage *image = [[UIImage alloc] initWithContentsOfFile:URL.path];
         
@@ -214,10 +222,10 @@ RCT_EXPORT_METHOD(run:(NSDictionary*)inputs callback:(RCTResponseSenderBlock)cal
     
     CGImagePropertyOrientation orientation;
     
-    if ([input objectForKey:@"orientation"] == nil) {
+    if ([input objectForKey:RNTIOImageKeyOrientation] == nil) {
         orientation = kCGImagePropertyOrientationUp;
     } else {
-        orientation = (CGImagePropertyOrientation)[input[@"orientation"] integerValue];
+        orientation = (CGImagePropertyOrientation)[input[RNTIOImageKeyOrientation] integerValue];
     }
     
     // Return the results
@@ -229,12 +237,18 @@ RCT_EXPORT_METHOD(run:(NSDictionary*)inputs callback:(RCTResponseSenderBlock)cal
 
 - (NSDictionary *)constantsToExport {
     return @{
-        @"imageTypeUnknown": @(TIOImageDataTypeUnknown),
-        @"imageTypeARGB":    @(TIOImageDataTypeARGB),
-        @"imageTypeBGRA":    @(TIOImageDataTypeBGRA),
-        @"imageTypeJPG":     @(TIOImageDataTypeJPG),
-        @"imageTypePNG":     @(TIOImageDataTypePNG),
-        @"imageTypeFile":    @(TIOImageDataTypeFile),
+        @"imageKeyData":        RNTIOImageKeyData,
+        @"imageKeyFormat":      RNTIOImageKeyFormat,
+        @"imageKeyWidth":       RNTIOImageKeyWidth,
+        @"imageKeyHeight":      RNTIOImageKeyHeight,
+        @"imageKeyOrientation": RNTIOImageKeyOrientation,
+        
+        @"imageTypeUnknown": @(RNTIOImageDataTypeUnknown),
+        @"imageTypeARGB":    @(RNTIOImageDataTypeARGB),
+        @"imageTypeBGRA":    @(RNTIOImageDataTypeBGRA),
+        @"imageTypeJPG":     @(RNTIOImageDataTypeJPG),
+        @"imageTypePNG":     @(RNTIOImageDataTypePNG),
+        @"imageTypeFile":    @(RNTIOImageDataTypeFile),
         
         @"imageOrientationUp":              @(kCGImagePropertyOrientationUp),
         @"imageOrientationUpMirrored":      @(kCGImagePropertyOrientationUpMirrored),
