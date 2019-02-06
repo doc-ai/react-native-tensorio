@@ -14,11 +14,19 @@
 
 #import "TensorIO.h"
 
+/**
+ * Image input keys.
+ */
+
 static NSString * const RNTIOImageKeyData =         @"RNTIOImageKeyData";
 static NSString * const RNTIOImageKeyFormat =       @"RNTIOImageKeyFormat";
 static NSString * const RNTIOImageKeyWidth =        @"RNTIOImageKeyWidth";
 static NSString * const RNTIOImageKeyHeight =       @"RNTIOImageKeyHeight";
 static NSString * const RNTIOImageKeyOrientation =  @"RNTIOImageKeyOrientation";
+
+/**
+ * Supported image encodings.
+ */
 
 typedef NS_ENUM(NSInteger, RNTIOImageDataType) {
     RNTIOImageDataTypeUnknown,
@@ -33,6 +41,12 @@ typedef NS_ENUM(NSInteger, RNTIOImageDataType) {
 
 @implementation RCTConvert (RNTensorIOEnumerations)
 
+/**
+ * Bridged constants for supported image encodings. React Native images are
+ * encoded as byte64 strings and their format must be specified for image
+ * inputs.
+ */
+
 RCT_ENUM_CONVERTER(RNTIOImageDataType, (@{
     @"imageTypeUnknown": @(RNTIOImageDataTypeUnknown),
     @"imageTypeARGB":    @(RNTIOImageDataTypeARGB),
@@ -41,6 +55,12 @@ RCT_ENUM_CONVERTER(RNTIOImageDataType, (@{
     @"imageTypePNG":     @(RNTIOImageDataTypePNG),
     @"imageTypeFile":    @(RNTIOImageDataTypeFile)
 }), RNTIOImageDataTypeUnknown, integerValue);
+
+/**
+ * Bridged constants for suppoted image orientations. Most images will be
+ * oriented 'Up', and that is the default value, but images coming directly
+ * from a camera pixel buffer will be oriented 'Right'.
+ */
 
 RCT_ENUM_CONVERTER(CGImagePropertyOrientation, (@{
     @"imageOrientationUp":              @(kCGImagePropertyOrientationUp),
@@ -67,6 +87,11 @@ RCT_ENUM_CONVERTER(CGImagePropertyOrientation, (@{
 
 RCT_EXPORT_MODULE();
 
+/**
+ * Bridged method that loads a model given a model name. The model must be
+ * located within the application bundle.
+ */
+
 RCT_EXPORT_METHOD(load:(NSString*)name) {
     [self unload];
     
@@ -80,10 +105,19 @@ RCT_EXPORT_METHOD(load:(NSString*)name) {
     self.model = bundle.newModel;
 }
 
+/**
+ * Bridged method that unloads a model, freeing the underlying resources.
+ */
+
 RCT_EXPORT_METHOD(unload) {
     [self.model unload];
     self.model = nil;
 }
+
+/**
+ * Bridged methods that performs inference with a loaded model and returns the
+ * results.
+ */
 
 RCT_EXPORT_METHOD(run:(NSDictionary*)inputs callback:(RCTResponseSenderBlock)callback) {
     
@@ -113,12 +147,22 @@ RCT_EXPORT_METHOD(run:(NSDictionary*)inputs callback:(RCTResponseSenderBlock)cal
     callback(@[NSNull.null, results]);
 }
 
+/**
+ * Bridged utility method for image classification models that returns the top N
+ * probability label-scores.
+ */
+
 RCT_EXPORT_METHOD(topN:(NSUInteger)count threshold:(float)threshold classifications:(NSDictionary*)classifications callback:(RCTResponseSenderBlock)callback) {
     NSDictionary *topN = [classifications topN:count threshold:threshold];
     callback(@[NSNull.null, topN]);
 }
 
 // MARK: - Input Key Checking
+
+/**
+ * Returns the names of the model inputs, derived from a model bundle's
+ * model.json file.
+ */
 
 - (NSArray<NSString*>*)inputKeysForModel:(id<TIOModel>)model {
     NSMutableArray<NSString*> *keys = [[NSMutableArray alloc] init];
@@ -130,10 +174,13 @@ RCT_EXPORT_METHOD(topN:(NSUInteger)count threshold:(float)threshold classificati
 
 // MARK: - Input Conversion
 
+/**
+ * Prepares the model inputs sent from javascript for inference. Image inputs
+ * are encoded as a byte64 string and must be decoded and converted to pixel
+ * buffers. Other inputs are taken as is.
+ */
+
 - (NSDictionary*)preparedInputs:(NSDictionary*)inputs {
-    
-    // Convert pixel buffer inputs, supporting ARGB/BGRA, PNG, and JPG byte conversions as well as filesystem paths
-    // Pass other data through
     
     NSMutableDictionary<NSString*, id<TIOData>> *preparedInputs = [[NSMutableDictionary alloc] init];
     
@@ -148,9 +195,13 @@ RCT_EXPORT_METHOD(topN:(NSUInteger)count threshold:(float)threshold classificati
     return preparedInputs.copy;
 }
 
+/**
+ * Prepares a pixel buffer input given an image encoding dictionary sent from
+ * javascript, converting a byte64 encoded string or reading data from the file
+ * system.
+ */
+
 - (TIOPixelBuffer*)pixelBufferForInput:(NSDictionary*)input {
-    
-    // Converts byte64 encoded image data or reads image data from the file system
     
     RNTIOImageDataType format = (RNTIOImageDataType)[input[RNTIOImageKeyFormat] integerValue];
     CVPixelBufferRef pixelBuffer;
@@ -173,7 +224,7 @@ RCT_EXPORT_METHOD(topN:(NSUInteger)count threshold:(float)threshold classificati
         
         pixelBuffer = CreatePixelBufferWithBytes(bytes, width, height, imageFormat);
         CFAutorelease(pixelBuffer);
-        
+
         }
         break;
         
