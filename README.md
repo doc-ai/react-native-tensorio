@@ -24,7 +24,7 @@ Link the package to your project:
 
 The react-native-tensorio package depends on the TensorIO library, which can most easily be added to your project using cocoapods ([learn more](https://cocoapods.org/)).
 
-**Initialize Cocoapods**
+##### Initialize Cocoapods
 
 If you have not already initialized cocoapods for your project, cd into your project's *ios* directory and initialize cocoapods:
 
@@ -34,17 +34,17 @@ $ pod init
 
 This command creates a *Podfile* in your project's *ios* directory. 
 
-**Fix a Cocoapods / React Native Bug**
+##### Fix a Cocoapods / React Native Bug
 
-Edit the *Podfile* and, because of a bug in how cocoapods and react native interract, remove the first block for `target MyProject-tvOSTests do`, everything from that line to the next `end` statement. It is a duplicate entry that will cause problems when you try to install the cocoapod dependencies.
+Edit the *Podfile* and, because of a bug in how cocoapods and React Native interact, remove the first block for `target MyProject-tvOSTests do`, everything from that line to the `end` statement. It is a duplicate entry that will cause problems when you try to install the cocoapod dependencies.
 
 You may also completey remove the entire `target 'MyProject-tvOS' do` block if you are not building for tvOS.
 
-**Uncomment Lines**
+##### Uncomment Lines
 
 Uncomment the `platform :ios` line and make sure it is no lower than `9.3`. Uncomment the `use_frameworks!` line.
 
-**Add TensorIO**
+##### Add TensorIO
 
 Add TensorIO as a dependency under the `# Pods for MyProject ` comment:
 
@@ -75,7 +75,7 @@ end
 
 ```
 
-**Install Pods**
+##### Install Pods
 
 At the command line type:
 
@@ -85,7 +85,7 @@ $ pod install
 
 This should install the TensorIO dependency as well as TensorFlow Lite and link them into your project. 
 
-**Use the .xcworkspace file**
+##### Use the .xcworkspace file
 
 You should now use the *MyProject.xcworkspace* file to make changes to and build your project instead of the *MyProject.xcodeproj* file.
 
@@ -118,25 +118,13 @@ Android support is forthcoming.
   	```
 -->
 
-#### Windows
-<!--[Read it! :D](https://github.com/ReactWindows/react-native)-->
-
-Windows support is unplanned.
-
-<!-- 
-1. In Visual Studio add the `RNTensorIO.sln` in `node_modules/react-native-tensorio/windows/RNTensorIO.sln` folder to their solution, reference from their app.
-2. Open up your `MainPage.cs` app
-  - Add `using Tensor.IO.RNTensorIO;` to the usings at the top of the file
-  - Add `new RNTensorIOPackage()` to the `List<IReactPackage>` returned by the `Packages` method 
--->
-
 <a name="usage"></a>
 ## Usage
 
 <a name="about-tensorio"></a>
 ### About TensorIO
 
-TensorIO uses model bundles to wrap an underlying model and a description of its inputs and outputs along with any assets the model requires, such as text labels for image classification outputs. They are simply folders with the *.tfbundle* extension ([learn more](https://github.com/doc-ai/TensorIO)). You will need to add these bundles to your react native application in order to perform inference with the underlying models.
+TensorIO uses model bundles to wrap an underlying model and a description of its inputs and outputs along with any assets the model requires, such as text labels for image classification outputs. They are simply folders with the *.tfbundle* extension ([learn more](https://github.com/doc-ai/TensorIO)). You will need to add these bundles to your React Native application in order to perform inference with the underlying models.
 
 Every TensorIO bundle includes a description of the underlying model. Model inputs and outputs are named and indicate what kind of data they expect or produce. You must know these names in order to pass data to the model and extract results from it. From the perspective of a React Native application, you will pass an object to the model whose name-value pairs match the model's input names, and you will receive an object back from the model whose name-value pairs match the model's output names.
 
@@ -149,7 +137,7 @@ All this information appears in a bundle's *model.json* file. Let's have a look 
   "id": "1_in_1_out_number_test",
   "version": "1",
   "author": "doc.ai",
-  "license": "",
+  "license": "Apache 2.0",
   "model": {
     "file": "model.tflite",
     "quantized": false,
@@ -216,7 +204,7 @@ RNTensorIO.run({
 RNTensorIO.unload();
 ```
 
-You can use any model that doesn't take image inputs or produce outputs like this. Computer vision models, however, require a little more work to use. Let's have a look.
+You can use any model that doesn't take image inputs like this. Computer vision models, however, require a little more work to use. Let's have a look.
 
 <a name="image-models"></a>
 ### Image Models
@@ -226,14 +214,14 @@ React Native represents image data as a base64 encoded string. When you pass tha
 <a name="about-image-data"></a>
 #### About Image Data
 
-Models that take image inputs must receive those inputs in a pixel buffer format. A pixel buffer is an unrolled vector of bytes corresponding to the red-green-blue-alpha (RGBA) values that define the pixel representation of an image. Image models are trained on these kinds of representations and expect them for inputs.
+Models that take image inputs must receive those inputs in a pixel buffer format. A pixel buffer is an unrolled vector of bytes corresponding to the red-green-blue (RGB) values that define the pixel representation of an image. Image models are trained on these kinds of representations and expect them for inputs.
 
-React Native represents image data in javascript as a base64 encoded string. In order to perform inference with an image model you must provide this base64 encoded string to the run function as well as a description of the those bytes that may included metadata such as the width, height, and format of the image they represent. To run an image model you'll pack this information into a javascript object and use that object in the name-value pair you provide to the run function.
+React Native represents image data in javascript as a base64 encoded string. In order to perform inference with an image model you must provide this base64 encoded string to the run function as well as a description of the those bytes that may included metadata such as the width, height, and format of the image they represent. To run an image model you'll pack this information into a javascript object and use that object in one of the name-value pairs you provide to the run function.
 
 <a name="image-classification-example"></a>
 #### An Image Classification Example
 
-Let's look at a basic image classification model and see how to use it in React Native. The JSON description for the ImageNet MobilNet classification model is as follows. Again, pay special attention to the *inputs* and *outputs* fields:
+Let's look at a basic image classification model and see how to use it in React Native. The JSON description for the ImageNet MobileNet classification model is as follows. Again, pay special attention to the *inputs* and *outputs* fields:
 
 ```json
 {
@@ -269,9 +257,9 @@ Let's look at a basic image classification model and see how to use it in React 
 }
 ```
 
-The *inputs* and *outputs* fields tell us that this model expects a single image input whose name is *"image"* and produces a single output whose name is *"classification"*. You don't need to worry about the image input details. TensorIO will take care of preparing an image input for the model using this information, but the output field tells you that the classification output will be a labeled list of 1000 values (1 x 1000 from the shape).
+The *inputs* and *outputs* fields tell us that this model expects a single image input whose name is *"image"* and produces a single output whose name is *"classification"*. You don't need to worry about the image input details. TensorIO will take care of preparing an image input for the model using this information. But the output field tells you that the classification output will be a labeled list of 1000 values (1 x 1000 from the shape).
 
-Let's see how to use this model in React Native:
+Let's see how to use this model in React Native. Assuming we have some base64 encoded JPEG data:
 
 
 ```js
@@ -291,9 +279,9 @@ RNTensorIO.run({
 });
 ```
 
-This time we provide an object for the *"image"* name-value pair and this object contains three pieces of information: the base64 encoded string, the format of the underlying data, in this case, JPG data, and the image's orientation. The names used in this object are available on the RNTensorIO module along with the supported image orientations and image data types. They are described in more detail below.
+This time we provide an object for the *"image"* name-value pair and this object contains three pieces of information: the base64 encoded string, the format of the underlying data, in this case, JPEG data, and the image's orientation. The names used in this object are exported by the RNTensorIO module along with the supported image orientations and image data types. These are all described in more detail below.
 
-RNTensorIO suppors image data in a number of formats. Imagine instead that we have the path to an image on the filesystem. We would run the model as follows, snd this time we'll omit the image orientation, which is assumed to be 'Up' by default:
+RNTensorIO supports image data in a number of formats. Imagine instead that we have the path to an image on the filesystem. We would run the model as follows, and this time we'll omit the image orientation, which is assumed to be 'Up' by default:
 
 ```js
 var data = '/path/to/image.png';
@@ -333,7 +321,7 @@ RNTensorIO.run({
 });
 ```
 
-Image models that take image inputs will all be run in this manner.
+All image models that take image inputs will be run in this manner.
 
 <a name="image-outputs"></a>
 #### Image Outputs
@@ -353,22 +341,191 @@ RNTensorIO.run({
   
 ## The RNTensorIO Module
   
-Description of modules constants and functions coming...
-  
-TopN utility function
+Listed below are the functions and constants exported by this module.
+
+### Functions
+
+#### load(name)
+
+Loads the model with the given name or path if the model is in a subdirectory. Currently models must be included in the application bundle, but support for loading models from fully qualified paths is forthcoming.
+
+Usage:
+
+```js
+RNTensorIO.load('model.tfbundle');
+```
+
+#### run(input, callback)
+
+Perform inference with the loaded model on the input. 
+
+The input must be a javascript object whose name-value pairs match the names expected by the underlying model's inputs and which are described in the model bundle's *model.json* file.
+
+The callback has the signature `(error, results) => { ... }`. If there was a problem performing inference, error will be set to a string value describing the problem. It will be null otherwise. Results will be a javascript object whose name-value pairs match the names of the model's outputs and which are described in the model bundle's *model.json* file. If there was an error, results will be null.
+
+Usage:
 
 ```js
 RNTensorIO.run({
-  'image': {
-    [model.imageKeyData]: source,
-    [model.imageKeyFormat]: model.imageTypeFile,
-    [model.imageKeyOrientation]: model.imageOrientationUp
+  'input': [1]
+}, (error, results) => {
+  if (error) {
+    // handle error
+  } else {
+    console.log(results);
   }
+});
+```
+
+#### unload()
+
+Unloads the loaded model and frees the underlying resources. Explicitly unload models when you are done with them to aggressively manage the application's memory footprint.
+
+Usage:
+
+```js
+RNTensorIO.unload()
+```
+
+#### topN(count, threshold, classifications, callback)
+
+A utility function for image classification models that filters for the results with the highest probabilities above a given threshold. 
+
+Image classification models are often capable of recognizing hundreds or thousands of items and return what is called a softmax probability distribution that describes the likelihood that a recognizable item appears in the image. Often we do not want to know the entire probabilty distribution but only want to know which items have the highest probability of being in the image. Use this function to filter for those items.
+
+Count is the number of items you would like to be returned.
+
+Threshold is the minimum probability value an item should have in order to be returned. If there are fewer than count items above this probability, only that many items will be returned.
+
+Classifications is the output of a classification model.
+
+The callback has the signature `(error, results) => { ... }`. Error will always be null. Results will contain the filtered items.
+
+Usage:
+
+```js
+// Give the results from a model whose output has the name 'classification',
+// filter for the top five probabilities above a threshold of 0.1
+
+RNTensorIO.run({
+  'image': {}
 }, (error, results) =>  {
   classifications = results['classification'];
-  
+
   RNTensorIO.topN(5, 0.1, classifications, (error, top5) => {
     console.log("TOP 5", top5);
   });
-});
+)};
 ```
+
+### Constants
+
+#### Image Input Keys
+
+```js
+RNTensorIO.imageKeyData
+RNTensorIO.imageKeyFormat
+RNTensorIO.imageKeyWidth
+RNTensorIO.imageKeyHeight
+RNTensorIO.imageKeyOrientation
+```
+
+##### RNTensorIO.imageKeyData
+
+The data for the image. Must be a base64 encoded string or the fully qualified path to an image on the filesystem.
+
+##### RNTensorIO.imageKeyFormat
+
+The image format. See supported types below. Pixel buffer data coming directly from an iOS camera will usually have the format `RNTensorIO.imageOrientationRight`.
+
+##### RNTensorIO.imageKeyWidth
+
+The width of the underlying image. Only required if the format is `RNTensorIO.imageTypeARGB` or `RNTensorIO.imageTypeBGRA`. Pixel buffer data coming directly from an iOS device camera will often have a width of 640.
+
+##### RNTensorIO.imageKeyHeight
+
+The height of the underlying image. Only required if the format is `RNTensorIO.imageTypeARGB` or `RNTensorIO.imageTypeBGRA`. Pixel buffer data coming directly from an iOS device camera will often have a height of 480.
+
+##### RNTensorIO.imageKeyOrientation
+
+The orientation of the image. See supported formats below. Most images will be `RNTensorIO.imageOrientationUp`, and this is the default value that is used if this field is not specified. However, pixel buffer data coming directly from an iOS device camera will be `RNTensorIO.imageOrientationRight`.
+
+#### Image Data Types
+
+```js
+RNTensorIO.imageTypeUnknown
+RNTensorIO.imageTypeARGB
+RNTensorIO.imageTypeBGRA
+RNTensorIO.imageTypeJPG
+RNTensorIO.imageTypePNG
+RNTensorIO.imageTypeFile
+```
+
+##### RNTensorIO.imageTypeUnknown
+
+A placeholder for an unknown image type. RNTensorIO will return an error if you specify this format.
+
+##### RNTensorIO.imageTypeARGB
+
+Pixel buffer data whose pixels are unrolled into an alpha-red-green-blue byte representation.
+
+##### RNTensorIO.imageTypeBGRA
+
+Pixel buffer data whose pixels are unrolled into a blue-green-red-alpha byte representation. Pixel data coming directly from an iOS device camera will usually be in this format.
+
+##### RNTensorIO.imageTypeJPG
+
+JPEG image data. The base64 encoded string must be prefixed with `data:image/jpeg;base64,`.
+
+##### RNTensorIO.imageTypePNG
+
+PNG image data. The base64 encoded string must be prefixed with `data:image/png;base64,`.
+
+##### RNTensorIO.imageTypeFile
+
+Indicates tha the image data will contain the fully qualified path to an image on the filesystem.
+
+#### Image Orientations
+
+```js
+RNTensorIO.imageOrientationUp
+RNTensorIO.imageOrientationUpMirrored
+RNTensorIO.imageOrientationDown
+RNTensorIO.imageOrientationDownMirrored
+RNTensorIO.imageOrientationLeftMirrored
+RNTensorIO.imageOrientationRight
+RNTensorIO.imageOrientationRightMirrored
+RNTensorIO.imageOrientationLeft
+```
+
+##### RNTensorIO.imageOrientationUp
+
+0th row at top, 0th column on left. Default orientation.
+
+##### RNTensorIO.imageOrientationUpMirrored
+
+0th row at top, 0th column on right. Horizontal flip.
+
+##### RNTensorIO.imageOrientationDown
+
+0th row at bottom, 0th column on right. 180 degree rotation.
+
+##### RNTensorIO.imageOrientationDownMirrored 
+
+0th row at bottom, 0th column on left. Vertical flip.
+
+##### RNTensorIO.imageOrientationLeftMirrored
+
+0th row on left, 0th column at top.
+
+##### RNTensorIO.imageOrientationRight
+
+0th row on right, 0th column at top. 90 degree clockwise rotation. Pixel buffer data coming from an iOS device camera will usually have this orientation.
+
+##### RNTensorIO.imageOrientationRightMirrored
+
+0th row on right, 0th column on bottom.
+
+##### RNTensorIO.imageOrientationLeft
+
+0th row on left, 0th column at bottom. 90 degree counter-clockwise rotation.
