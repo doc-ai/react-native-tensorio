@@ -113,6 +113,11 @@ RCT_EXPORT_METHOD(run:(NSDictionary*)inputs callback:(RCTResponseSenderBlock)cal
     callback(@[NSNull.null, results]);
 }
 
+RCT_EXPORT_METHOD(topN:(NSUInteger)count threshold:(float)threshold classifications:(NSDictionary*)classifications callback:(RCTResponseSenderBlock)callback) {
+    NSDictionary *topN = [classifications topN:count threshold:threshold];
+    callback(@[NSNull.null, topN]);
+}
+
 // MARK: - Input Key Checking
 
 - (NSArray<NSString*>*)inputKeysForModel:(id<TIOModel>)model {

@@ -223,3 +223,23 @@ model.run({
   console.log(results);
 });
 ```
+
+Classification Models
+
+TopN utility function
+
+```js
+model.run({
+  'image': {
+    [model.imageKeyData]: source,
+    [model.imageKeyFormat]: model.imageTypeFile,
+    [model.imageKeyOrientation]: model.imageOrientationUp
+  }
+}, (error, results) =>  {
+  classifications = results['classification'];
+  
+  model.topN(5, 0.1, classifications, (error, top5) => {
+    console.log("TOP 5", top5);
+  });
+});
+```
