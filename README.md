@@ -265,7 +265,7 @@ Let's see how to use this model in React Native. Assuming we have some base64 en
 ```js
 var data = 'data:image/jpeg;base64,' + some.data;
 var orientation = RNTensorIO.imageOrientationUp;
-var format = RNTensorIO.imageTypeJPG;
+var format = RNTensorIO.imageTypeJPEG;
 
 RNTensorIO.run({
   'image': {
@@ -456,7 +456,7 @@ The orientation of the image. See supported formats below. Most images will be `
 RNTensorIO.imageTypeUnknown
 RNTensorIO.imageTypeARGB
 RNTensorIO.imageTypeBGRA
-RNTensorIO.imageTypeJPG
+RNTensorIO.imageTypeJPEG
 RNTensorIO.imageTypePNG
 RNTensorIO.imageTypeFile
 ```
@@ -473,7 +473,7 @@ Pixel buffer data whose pixels are unrolled into an alpha-red-green-blue byte re
 
 Pixel buffer data whose pixels are unrolled into a blue-green-red-alpha byte representation. Pixel data coming directly from an iOS device camera will usually be in this format.
 
-##### RNTensorIO.imageTypeJPG
+##### RNTensorIO.imageTypeJPEG
 
 JPEG image data. The base64 encoded string must be prefixed with `data:image/jpeg;base64,`.
 

@@ -32,7 +32,7 @@ typedef NS_ENUM(NSInteger, RNTIOImageDataType) {
     RNTIOImageDataTypeUnknown,
     RNTIOImageDataTypeARGB,
     RNTIOImageDataTypeBGRA,
-    RNTIOImageDataTypeJPG,
+    RNTIOImageDataTypeJPEG,
     RNTIOImageDataTypePNG,
     RNTIOImageDataTypeFile
 };
@@ -51,7 +51,7 @@ RCT_ENUM_CONVERTER(RNTIOImageDataType, (@{
     @"imageTypeUnknown": @(RNTIOImageDataTypeUnknown),
     @"imageTypeARGB":    @(RNTIOImageDataTypeARGB),
     @"imageTypeBGRA":    @(RNTIOImageDataTypeBGRA),
-    @"imageTypeJPG":     @(RNTIOImageDataTypeJPG),
+    @"imageTypeJPEG":    @(RNTIOImageDataTypeJPEG),
     @"imageTypePNG":     @(RNTIOImageDataTypePNG),
     @"imageTypeFile":    @(RNTIOImageDataTypeFile)
 }), RNTIOImageDataTypeUnknown, integerValue);
@@ -159,7 +159,7 @@ RCT_EXPORT_METHOD(run:(NSDictionary*)inputs callback:(RCTResponseSenderBlock)cal
     NSDictionary *preparedResults = [self preparedOutputs:results];
     
     if (preparedResults == nil) {
-        NSString *error = @"There was a problem preparing the outputs. Pixel buffer outputs could not be converted to base64 JPG string data.";
+        NSString *error = @"There was a problem preparing the outputs. Pixel buffer outputs could not be converted to base64 JPEG string data.";
         callback(@[error, NSNull.null]);
         return;
     }
@@ -274,7 +274,7 @@ RCT_EXPORT_METHOD(topN:(NSUInteger)count threshold:(float)threshold classificati
         }
         break;
         
-    case RNTIOImageDataTypeJPG: {
+    case RNTIOImageDataTypeJPEG: {
         NSString *base64 = input[RNTIOImageKeyData];
         UIImage *image = [RCTConvert UIImage:base64];
         
@@ -337,7 +337,7 @@ RCT_EXPORT_METHOD(topN:(NSUInteger)count threshold:(float)threshold classificati
     
     for (TIOLayerInterface *layer in self.model.outputs) {
         [layer matchCasePixelBuffer:^(TIOPixelBufferLayerDescription * _Nonnull pixelBufferDescription) {
-            NSString *base64 = [self base64JPGDataForPixelBuffer:outputs[layer.name]];
+            NSString *base64 = [self base64JPEGDataForPixelBuffer:outputs[layer.name]];
             if (base64 == nil) {
                 error = YES;
             } else {
@@ -360,7 +360,7 @@ RCT_EXPORT_METHOD(topN:(NSUInteger)count threshold:(float)threshold classificati
  * consumed by React Native.
  */
 
-- (nullable NSString*)base64JPGDataForPixelBuffer:(TIOPixelBuffer*)pixelBuffer {
+- (nullable NSString*)base64JPEGDataForPixelBuffer:(TIOPixelBuffer*)pixelBuffer {
     UIImage *image = [[UIImage alloc] initWithPixelBuffer:pixelBuffer.pixelBuffer];
     NSData *data = UIImageJPEGRepresentation(image, 1.0);
     NSString *base64 = [data base64EncodedStringWithOptions:0];
@@ -381,7 +381,7 @@ RCT_EXPORT_METHOD(topN:(NSUInteger)count threshold:(float)threshold classificati
         @"imageTypeUnknown":    @(RNTIOImageDataTypeUnknown),
         @"imageTypeARGB":       @(RNTIOImageDataTypeARGB),
         @"imageTypeBGRA":       @(RNTIOImageDataTypeBGRA),
-        @"imageTypeJPG":        @(RNTIOImageDataTypeJPG),
+        @"imageTypeJPEG":       @(RNTIOImageDataTypeJPEG),
         @"imageTypePNG":        @(RNTIOImageDataTypePNG),
         @"imageTypeFile":       @(RNTIOImageDataTypeFile),
         
