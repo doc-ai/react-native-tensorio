@@ -87,6 +87,8 @@ RCT_ENUM_CONVERTER(CGImagePropertyOrientation, (@{
 
 RCT_EXPORT_MODULE();
 
+// MARK: - Exported Methods
+
 /**
  * Bridged method that loads a model given a model name. The model must be
  * located within the application bundle.
@@ -368,7 +370,7 @@ RCT_EXPORT_METHOD(topN:(NSUInteger)count threshold:(float)threshold classificati
     return base64;
 }
 
-// MARK: -
+// MARK: - React Native Overrides
 
 - (NSDictionary *)constantsToExport {
     return @{
@@ -398,6 +400,10 @@ RCT_EXPORT_METHOD(topN:(NSUInteger)count threshold:(float)threshold classificati
 
 - (dispatch_queue_t)methodQueue {
     return dispatch_get_main_queue();
+}
+
++ (BOOL)requiresMainQueueSetup {
+    return YES;
 }
 
 @end
