@@ -121,6 +121,14 @@ RCT_EXPORT_METHOD(unload) {
 
 RCT_EXPORT_METHOD(run:(NSDictionary*)inputs callback:(RCTResponseSenderBlock)callback) {
     
+    // Ensure that a model has been loaded
+    
+    if (self.model == nil) {
+        NSString *error = @"No model has been loaded. Call load() with the name of a model before calling run().";
+        callback(@[error, NSNull.null]);
+        return;
+    }
+    
     // Ensure that the provided keys match the model's expected keys, or return an error
     
     NSSet<NSString*> *expectedKeys = [NSSet setWithArray:[self inputKeysForModel:self.model]];
@@ -135,6 +143,12 @@ RCT_EXPORT_METHOD(run:(NSDictionary*)inputs callback:(RCTResponseSenderBlock)cal
     // Prepare inputs, converting byte64 encoded pixel buffers or reading image data from the filesystem
     
     NSDictionary *preparedInputs = [self preparedInputs:inputs];
+    
+    if (preparedInputs == nil) {
+        NSString *error = @"There was a problem preparing the inputs. Ensure that your image inputs are property encoded.";
+        callback(@[error, NSNull.null]);
+        return;
+    }
     
     // Perform inference
     
@@ -180,16 +194,26 @@ RCT_EXPORT_METHOD(topN:(NSUInteger)count threshold:(float)threshold classificati
  * buffers. Other inputs are taken as is.
  */
 
-- (NSDictionary*)preparedInputs:(NSDictionary*)inputs {
+- (nullable NSDictionary*)preparedInputs:(NSDictionary*)inputs {
     
     NSMutableDictionary<NSString*, id<TIOData>> *preparedInputs = [[NSMutableDictionary alloc] init];
+    __block BOOL error = NO;
     
     for (TIOLayerInterface *layer in self.model.inputs) {
         [layer matchCasePixelBuffer:^(TIOPixelBufferLayerDescription * _Nonnull pixelBufferDescription) {
-            preparedInputs[layer.name] = [self pixelBufferForInput:inputs[layer.name]];
+            TIOPixelBuffer *pixelBuffer = [self pixelBufferForInput:inputs[layer.name]];
+            if (pixelBuffer == nil) {
+                error = YES;
+            } else {
+                preparedInputs[layer.name] = pixelBuffer;
+            }
         } caseVector:^(TIOVectorLayerDescription * _Nonnull vectorDescription) {
             preparedInputs[layer.name] = inputs[layer.name];
         }];
+    }
+    
+    if (error) {
+        return nil;
     }
     
     return preparedInputs.copy;
@@ -201,14 +225,13 @@ RCT_EXPORT_METHOD(topN:(NSUInteger)count threshold:(float)threshold classificati
  * system.
  */
 
-- (TIOPixelBuffer*)pixelBufferForInput:(NSDictionary*)input {
+- (nullable TIOPixelBuffer*)pixelBufferForInput:(NSDictionary*)input {
     
     RNTIOImageDataType format = (RNTIOImageDataType)[input[RNTIOImageKeyFormat] integerValue];
     CVPixelBufferRef pixelBuffer;
     
     switch (format) {
     case RNTIOImageDataTypeUnknown: {
-        // TODO: raise an error
         pixelBuffer = NULL;
         }
         break;
@@ -272,7 +295,11 @@ RCT_EXPORT_METHOD(topN:(NSUInteger)count threshold:(float)threshold classificati
         break;
     }
     
-    // TODO: raise an error if pixelbuffer is null
+    // Bail if the pixel buffer could not be created
+    
+    if (pixelBuffer == NULL)  {
+        return nil;
+    }
     
     // Derive the image orientation
     
