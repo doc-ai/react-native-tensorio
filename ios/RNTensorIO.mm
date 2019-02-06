@@ -43,7 +43,7 @@ typedef NS_ENUM(NSInteger, RNTIOImageDataType) {
 
 /**
  * Bridged constants for supported image encodings. React Native images are
- * encoded as byte64 strings and their format must be specified for image
+ * encoded as base64 strings and their format must be specified for image
  * inputs.
  */
 
@@ -140,7 +140,7 @@ RCT_EXPORT_METHOD(run:(NSDictionary*)inputs callback:(RCTResponseSenderBlock)cal
         return;
     }
     
-    // Prepare inputs, converting byte64 encoded pixel buffers or reading image data from the filesystem
+    // Prepare inputs, converting base64 encoded image data or reading image data from the filesystem
     
     NSDictionary *preparedInputs = [self preparedInputs:inputs];
     
@@ -154,11 +154,19 @@ RCT_EXPORT_METHOD(run:(NSDictionary*)inputs callback:(RCTResponseSenderBlock)cal
     
     NSDictionary *results = (NSDictionary*)[self.model runOn:preparedInputs];
     
-    // TODO: convert image outputs to byte64 data
+    // Prepare outputs, converting pixel buffer outputs to base64 encoded jpeg string data
+    
+    NSDictionary *preparedResults = [self preparedOutputs:results];
+    
+    if (preparedResults == nil) {
+        NSString *error = @"There was a problem preparing the outputs. Pixel buffer outputs could not be converted to base64 JPG string data.";
+        callback(@[error, NSNull.null]);
+        return;
+    }
     
     // Return results
     
-    callback(@[NSNull.null, results]);
+    callback(@[NSNull.null, preparedResults]);
 }
 
 /**
@@ -190,7 +198,7 @@ RCT_EXPORT_METHOD(topN:(NSUInteger)count threshold:(float)threshold classificati
 
 /**
  * Prepares the model inputs sent from javascript for inference. Image inputs
- * are encoded as a byte64 string and must be decoded and converted to pixel
+ * are encoded as a base64 string and must be decoded and converted to pixel
  * buffers. Other inputs are taken as is.
  */
 
@@ -221,7 +229,7 @@ RCT_EXPORT_METHOD(topN:(NSUInteger)count threshold:(float)threshold classificati
 
 /**
  * Prepares a pixel buffer input given an image encoding dictionary sent from
- * javascript, converting a byte64 encoded string or reading data from the file
+ * javascript, converting a base64 encoded string or reading data from the file
  * system.
  */
 
@@ -314,6 +322,50 @@ RCT_EXPORT_METHOD(topN:(NSUInteger)count threshold:(float)threshold classificati
     // Return the results
     
     return [[TIOPixelBuffer alloc] initWithPixelBuffer:pixelBuffer orientation:orientation];
+}
+
+// MARK: - Output Conversion
+
+/**
+ * Prepares the model outputs for consumption by javascript. Pixel buffer outputs
+ * are converted to base64 strings. Other outputs are taken as is.
+ */
+
+- (NSDictionary*)preparedOutputs:(NSDictionary*)outputs {
+    NSMutableDictionary *preparedOutputs = [[NSMutableDictionary alloc] init];
+    __block BOOL error = NO;
+    
+    for (TIOLayerInterface *layer in self.model.outputs) {
+        [layer matchCasePixelBuffer:^(TIOPixelBufferLayerDescription * _Nonnull pixelBufferDescription) {
+            NSString *base64 = [self base64JPGDataForPixelBuffer:outputs[layer.name]];
+            if (base64 == nil) {
+                error = YES;
+            } else {
+                preparedOutputs[layer.name] = base64;
+            }
+        } caseVector:^(TIOVectorLayerDescription * _Nonnull vectorDescription) {
+            preparedOutputs[layer.name] = outputs[layer.name];
+        }];
+    }
+    
+    if (error) {
+        return nil;
+    }
+    
+    return preparedOutputs.copy;
+}
+
+/**
+ * Converts a pixel buffer output to a base64 encoded string that can be
+ * consumed by React Native.
+ */
+
+- (nullable NSString*)base64JPGDataForPixelBuffer:(TIOPixelBuffer*)pixelBuffer {
+    UIImage *image = [[UIImage alloc] initWithPixelBuffer:pixelBuffer.pixelBuffer];
+    NSData *data = UIImageJPEGRepresentation(image, 1.0);
+    NSString *base64 = [data base64EncodedStringWithOptions:0];
+    
+    return base64;
 }
 
 // MARK: -
