@@ -14,11 +14,11 @@
 
 #import "TensorIO.h"
 
-static NSString * const RNTIOImageKeyData = @"RNTIOImageKeyData";
-static NSString * const RNTIOImageKeyFormat = @"RNTIOImageKeyFormat";
-static NSString * const RNTIOImageKeyWidth = @"RNTIOImageKeyWidth";
-static NSString * const RNTIOImageKeyHeight = @"RNTIOImageKeyHeight";
-static NSString * const RNTIOImageKeyOrientation = @"RNTIOImageKeyOrientation";
+static NSString * const RNTIOImageKeyData =         @"RNTIOImageKeyData";
+static NSString * const RNTIOImageKeyFormat =       @"RNTIOImageKeyFormat";
+static NSString * const RNTIOImageKeyWidth =        @"RNTIOImageKeyWidth";
+static NSString * const RNTIOImageKeyHeight =       @"RNTIOImageKeyHeight";
+static NSString * const RNTIOImageKeyOrientation =  @"RNTIOImageKeyOrientation";
 
 typedef NS_ENUM(NSInteger, RNTIOImageDataType) {
     RNTIOImageDataTypeUnknown,
@@ -248,12 +248,12 @@ RCT_EXPORT_METHOD(topN:(NSUInteger)count threshold:(float)threshold classificati
         @"imageKeyHeight":      RNTIOImageKeyHeight,
         @"imageKeyOrientation": RNTIOImageKeyOrientation,
         
-        @"imageTypeUnknown": @(RNTIOImageDataTypeUnknown),
-        @"imageTypeARGB":    @(RNTIOImageDataTypeARGB),
-        @"imageTypeBGRA":    @(RNTIOImageDataTypeBGRA),
-        @"imageTypeJPG":     @(RNTIOImageDataTypeJPG),
-        @"imageTypePNG":     @(RNTIOImageDataTypePNG),
-        @"imageTypeFile":    @(RNTIOImageDataTypeFile),
+        @"imageTypeUnknown":    @(RNTIOImageDataTypeUnknown),
+        @"imageTypeARGB":       @(RNTIOImageDataTypeARGB),
+        @"imageTypeBGRA":       @(RNTIOImageDataTypeBGRA),
+        @"imageTypeJPG":        @(RNTIOImageDataTypeJPG),
+        @"imageTypePNG":        @(RNTIOImageDataTypePNG),
+        @"imageTypeFile":       @(RNTIOImageDataTypeFile),
         
         @"imageOrientationUp":              @(kCGImagePropertyOrientationUp),
         @"imageOrientationUpMirrored":      @(kCGImagePropertyOrientationUpMirrored),
