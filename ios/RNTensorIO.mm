@@ -14,6 +14,43 @@
 
 #import "TensorIO.h"
 
+typedef NS_ENUM(NSInteger, TIOImageDataType) {
+    TIOImageDataTypeUnknown,
+    TIOImageDataTypeARGB,
+    TIOImageDataTypeBGRA,
+    TIOImageDataTypeJPG,
+    TIOImageDataTypePNG,
+    TIOImageDataTypeFile
+};
+
+// MARK: -
+
+@implementation RCTConvert (RNTensorIOEnumerations)
+
+RCT_ENUM_CONVERTER(TIOImageDataType, (@{
+    @"imageTypeUnknown": @(TIOImageDataTypeUnknown),
+    @"imageTypeARGB":    @(TIOImageDataTypeARGB),
+    @"imageTypeBGRA":    @(TIOImageDataTypeBGRA),
+    @"imageTypeJPG":     @(TIOImageDataTypeJPG),
+    @"imageTypePNG":     @(TIOImageDataTypePNG),
+    @"imageTypeFile":    @(TIOImageDataTypeFile)
+}), TIOImageDataTypeUnknown, integerValue);
+
+RCT_ENUM_CONVERTER(CGImagePropertyOrientation, (@{
+    @"imageOrientationUp":              @(kCGImagePropertyOrientationUp),
+    @"imageOrientationUpMirrored":      @(kCGImagePropertyOrientationUpMirrored),
+    @"imageOrientationDown":            @(kCGImagePropertyOrientationDown),
+    @"imageOrientationDownMirrored":    @(kCGImagePropertyOrientationDownMirrored),
+    @"imageOrientationLeftMirrored":    @(kCGImagePropertyOrientationLeftMirrored),
+    @"imageOrientationRight":           @(kCGImagePropertyOrientationRight),
+    @"imageOrientationRightMirrored":   @(kCGImagePropertyOrientationRightMirrored),
+    @"imageOrientationLeft":            @(kCGImagePropertyOrientationLeft)
+}), kCGImagePropertyOrientationUp, integerValue);
+
+@end
+
+// MARK: -
+
 @interface RNTensorIO()
 
 @property id<TIOModel> model;
@@ -102,10 +139,17 @@ RCT_EXPORT_METHOD(run:(NSDictionary*)inputs callback:(RCTResponseSenderBlock)cal
     
     // Converts byte64 encoded image data or reads image data from the file system
     
-    NSString *format = input[@"format"];
+    TIOImageDataType format = (TIOImageDataType)[input[@"format"] integerValue];
     CVPixelBufferRef pixelBuffer;
     
-    if ([format isEqualToString:@"ARGB"]) {
+    switch (format) {
+    case TIOImageDataTypeUnknown: {
+        // TODO: raise an error
+        pixelBuffer = NULL;
+        }
+        break;
+    
+    case TIOImageDataTypeARGB: {
         OSType imageFormat = kCVPixelFormatType_32ARGB;
         NSUInteger width = [input[@"width"] unsignedIntegerValue];
         NSUInteger height = [input[@"height"] unsignedIntegerValue];
@@ -117,7 +161,10 @@ RCT_EXPORT_METHOD(run:(NSDictionary*)inputs callback:(RCTResponseSenderBlock)cal
         pixelBuffer = CreatePixelBufferWithBytes(bytes, width, height, imageFormat);
         CFAutorelease(pixelBuffer);
         
-    } else if ([format isEqualToString:@"BGRA"]) {
+        }
+        break;
+        
+    case TIOImageDataTypeBGRA: {
         OSType imageFormat = kCVPixelFormatType_32BGRA;
         NSUInteger width = [input[@"width"] unsignedIntegerValue];
         NSUInteger height = [input[@"height"] unsignedIntegerValue];
@@ -129,61 +176,76 @@ RCT_EXPORT_METHOD(run:(NSDictionary*)inputs callback:(RCTResponseSenderBlock)cal
         pixelBuffer = CreatePixelBufferWithBytes(bytes, width, height, imageFormat);
         CFAutorelease(pixelBuffer);
         
-    } else if ([format isEqualToString:@"JPG"]) {
+        }
+        break;
+        
+    case TIOImageDataTypeJPG: {
         NSString *base64 = input[@"data"];
-        NSData *data = [RCTConvert NSData:base64];
-        UIImage *image = [[UIImage alloc] initWithData:data];
+        UIImage *image = [RCTConvert UIImage:base64];
         
         pixelBuffer = image.pixelBuffer;
         
-    } else if ([format isEqualToString:@"PNG"]) {
-        NSString *base64 = input[@"data"];
-        NSData *data = [RCTConvert NSData:base64];
-        UIImage *image = [[UIImage alloc] initWithData:data];
-        
-        pixelBuffer = image.pixelBuffer;
+        }
+        break;
     
-    } else if ([format isEqualToString:@"FILE"]) {
+    case TIOImageDataTypePNG: {
+        NSString *base64 = input[@"data"];
+        UIImage *image = [RCTConvert UIImage:base64];
+        
+        pixelBuffer = image.pixelBuffer;
+        
+        }
+        break;
+    
+    case TIOImageDataTypeFile: {
         NSString *path = input[@"data"];
         NSURL *URL = [NSURL fileURLWithPath:path];
         UIImage *image = [[UIImage alloc] initWithContentsOfFile:URL.path];
         
         pixelBuffer = image.pixelBuffer;
         
-    } else  {
-        // TODO: return an error or raise an exception
+        }
+        break;
     }
+    
+    // TODO: raise an error if pixelbuffer is null
     
     // Derive the image orientation
     
-    CGImagePropertyOrientation orientation = [self orientationForString:input[@"orientation"]];
+    CGImagePropertyOrientation orientation;
+    
+    if ([input objectForKey:@"orientation"] == nil) {
+        orientation = kCGImagePropertyOrientationUp;
+    } else {
+        orientation = (CGImagePropertyOrientation)[input[@"orientation"] integerValue];
+    }
     
     // Return the results
     
     return [[TIOPixelBuffer alloc] initWithPixelBuffer:pixelBuffer orientation:orientation];
 }
 
-- (CGImagePropertyOrientation)orientationForString:(nullable NSString*)string {
-    CGImagePropertyOrientation orientation;
-    
-    if (string == nil) {
-        orientation = kCGImagePropertyOrientationUp;
-    } else if ([string isEqualToString:@"UP"]) {
-        orientation = kCGImagePropertyOrientationUp;
-    } else if ([string isEqualToString:@"DOWN"]) {
-        orientation = kCGImagePropertyOrientationDown;
-    } else if ([string isEqualToString:@"LEFT"]) {
-        orientation = kCGImagePropertyOrientationLeft;
-    } else if ([string isEqualToString:@"RIGHT"]) {
-        orientation = kCGImagePropertyOrientationRight;
-    } else {
-        // TODO: return an error or raise an exception
-    }
-    
-    return orientation;
-}
-
 // MARK: -
+
+- (NSDictionary *)constantsToExport {
+    return @{
+        @"imageTypeUnknown": @(TIOImageDataTypeUnknown),
+        @"imageTypeARGB":    @(TIOImageDataTypeARGB),
+        @"imageTypeBGRA":    @(TIOImageDataTypeBGRA),
+        @"imageTypeJPG":     @(TIOImageDataTypeJPG),
+        @"imageTypePNG":     @(TIOImageDataTypePNG),
+        @"imageTypeFile":    @(TIOImageDataTypeFile),
+        
+        @"imageOrientationUp":              @(kCGImagePropertyOrientationUp),
+        @"imageOrientationUpMirrored":      @(kCGImagePropertyOrientationUpMirrored),
+        @"imageOrientationDown":            @(kCGImagePropertyOrientationDown),
+        @"imageOrientationDownMirrored":    @(kCGImagePropertyOrientationDownMirrored),
+        @"imageOrientationLeftMirrored":    @(kCGImagePropertyOrientationLeftMirrored),
+        @"imageOrientationRight":           @(kCGImagePropertyOrientationRight),
+        @"imageOrientationRightMirrored":   @(kCGImagePropertyOrientationRightMirrored),
+        @"imageOrientationLeft":            @(kCGImagePropertyOrientationLeft)
+    };
+}
 
 - (dispatch_queue_t)methodQueue {
     return dispatch_get_main_queue();

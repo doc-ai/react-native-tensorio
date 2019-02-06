@@ -196,17 +196,30 @@ model.run({
 
 A more complete description of how to use the module is forthcoming.
 
-TODO: support reading images directly from a path, as most react native modules work with file paths directly instead of round trip base64 encoded string.
+TODO: enumerate the constants that are exported by the module and how to use them.
 
   
 ```js
 model.run({
   'input': {
     'data': path,
-    'format': 'FILE'
+    'format': model.imageTypeFile
   }
 }, (error, results) => {
   console.log(results)
 });
 ```
+
+```js
+const data = 'data:image/jpeg;base64,' + response.data;
+    
+model.run({
+  'image': {
+    'data': data,
+    'format': model.imageTypeJPG
+  }
+}, (error, results) =>  {
+  console.log(error);
+  console.log(results);
+});
 ```
