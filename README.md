@@ -166,7 +166,7 @@ The *inputs* and *outputs* fields tell us that this model takes a single input n
 
 Add a TensorIO bundle to your application in Xcode. Simply drag the bundle into the project under the project's primary folder (it will be the folder with the same name as your project). Make sure to check *Copy items if needed*, select *Create folder references*, and that your build target is selected.
 
-Then in javascript, import `RNTensorIO  from 'react-native-tensorio`. Load the model by providing its name (or path if the model is in a project subdirectory), run inference with it, and then unload it when you are done to free the underlying resources.
+Then in javascript, import `RNTensorIO  from 'react-native-tensorio`. Load the model by providing its name or a fully qualified path, run inference with it, and unload the model when you are done to free the underlying resources.
 
 Again, imagine we had a model that takes a single input named *"x"* with a single value and produces a singe output named *"y"* with a single value:
 
@@ -345,9 +345,9 @@ Listed below are the functions and constants exported by this module.
 
 ### Functions
 
-#### load(name)
+#### load(path)
 
-Loads the model with the given name or path if the model is in a subdirectory. Currently models must be included in the application bundle, but support for loading models from fully qualified paths is forthcoming.
+Loads the model at the given path. If the path is a relative path the model will be loaded from the application bundle.
 
 Usage:
 

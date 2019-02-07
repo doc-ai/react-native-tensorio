@@ -90,20 +90,14 @@ RCT_EXPORT_MODULE();
 // MARK: - Exported Methods
 
 /**
- * Bridged method that loads a model given a model name. The model must be
- * located within the application bundle.
+ * Bridged method that loads a model given a model path. Relative paths will be
+ * loaded from the application bundle.
  */
 
-RCT_EXPORT_METHOD(load:(NSString*)name) {
+RCT_EXPORT_METHOD(load:(NSString*)path) {
     [self unload];
     
-    if ([name.pathExtension isEqualToString:kTFModelBundleExtension]) {
-        name = [name stringByDeletingPathExtension];
-    }
-    
-    NSString *path = [NSBundle.mainBundle pathForResource:name ofType:kTFModelBundleExtension];
-    TIOModelBundle *bundle = [[TIOModelBundle alloc] initWithPath:path];
-    
+    TIOModelBundle *bundle = [[TIOModelBundle alloc] initWithPath:[self absolutePath:path]];
     self.model = bundle.newModel;
 }
 
@@ -179,6 +173,38 @@ RCT_EXPORT_METHOD(run:(NSDictionary*)inputs callback:(RCTResponseSenderBlock)cal
 RCT_EXPORT_METHOD(topN:(NSUInteger)count threshold:(float)threshold classifications:(NSDictionary*)classifications callback:(RCTResponseSenderBlock)callback) {
     NSDictionary *topN = [classifications topN:count threshold:threshold];
     callback(@[NSNull.null, topN]);
+}
+
+// MARK: - Load Utilities
+
+/**
+ * Returns the absolute path to a model. If an absolute path is provided it is
+ * returned. Otherwise the path will be treated as relative to the application
+ * bundle.
+ */
+
+ - (NSString*)absolutePath:(NSString*)path {
+    NSString *absolutePath;
+    
+    if ([self isAbsoluteFilepath:path]) {
+        absolutePath = path;
+    } else {
+        if ([path.pathExtension isEqualToString:kTFModelBundleExtension]) {
+            path = [path stringByDeletingPathExtension];
+        }
+        absolutePath = [NSBundle.mainBundle pathForResource:path ofType:kTFModelBundleExtension];
+    }
+    
+    return absolutePath;
+ }
+
+/**
+ * Returns YES if the path describes an absolute path rather than a relative one.
+ */
+
+- (BOOL)isAbsoluteFilepath:(NSString*)path {
+    NSString *fullpath = [path stringByExpandingTildeInPath];
+    return [fullpath hasPrefix:@"/"] || [fullpath hasPrefix:@"file:/"];
 }
 
 // MARK: - Input Key Checking
