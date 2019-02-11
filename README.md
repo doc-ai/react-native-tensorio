@@ -10,15 +10,19 @@ Machine learning for your React Native projects, using TensorIO and TensorFlow L
 <a name="getting-started"></a>
 ## Getting started
 
-For the time being, install directly from this repository:
-
-`$ npm install git+ssh://git@github.com:doc-ai/react-native-tensorio.git --save`
-
 ### Mostly automatic installation
 
-Link the package to your project:
+Install the package into your project:
 
-`$ react-native link react-native-tensorio`
+```bash
+$ npm install react-native-tensorio --save
+```
+
+Anbd link the package to your project:
+
+```bash
+$ react-native link react-native-tensorio
+```
 
 #### iOS
 

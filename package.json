@@ -1,23 +1,31 @@
 
 {
   "name": "react-native-tensorio",
-  "version": "0.0.1",
-  "description": "Machine Learning for React Native with TensorIO",
+  "version": "0.1.0",
+  "description": "Machine Learning for React Native with TensorIO and TensorFlow Lite",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/doc-ai/react-native-tensorio.git"
   },
   "keywords": [
     "react-native",
     "react-component",
     "ios",
     "machine learning",
-    "tensorflow"
+    "tensorflow",
+    "tensorflow lite",
+    "computer vision",
+    "tensorio"
   ],
-  "author": "doc.ai",
+  "author": "doc.ai (https://doc.ai)",
   "license": "Apache 2.0",
   "peerDependencies": {
     "react-native": "^0.41.2",
     "react-native-windows": "0.41.0-rc.1"
-  }
+  },
+  "homepage": "https://doc.ai"
 }
