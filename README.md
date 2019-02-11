@@ -1,6 +1,6 @@
 # react-native-tensorio
 
-Machine learning for your React Native projects, using TensorIO and TensorFlow Lite.
+Machine learning for your React Native projects, using TensorIO and TensorFlow Lite. See our example project, [TensorIOExample](https://github.com/doc-ai/react-native-tensorio-example).
 
 <a name="support"></a>
 ## Support
@@ -18,7 +18,7 @@ Install the package into your project:
 $ npm install react-native-tensorio --save
 ```
 
-Anbd link the package to your project:
+And link the package to your project:
 
 ```bash
 $ react-native link react-native-tensorio

@@ -1,7 +1,7 @@
 
 {
   "name": "react-native-tensorio",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Machine Learning for React Native with TensorIO and TensorFlow Lite",
   "main": "index.js",
   "scripts": {
