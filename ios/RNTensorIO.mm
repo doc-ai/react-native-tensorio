@@ -9,10 +9,17 @@
 #import "RNTensorIO.h"
 #import "RNPixelBufferUtilities.h"
 
-// Unsure why the library import statement does not work:
-// #import <TensorIO/TensorIO.h>
+// Unsure why the library import statements do not work:
+// #import <TensorIO/TensorIO-umbrella.h>
+// @import TensorIO
 
-#import "TensorIO.h"
+#import "TIOModelBundle.h"
+#import "TIOModel.h"
+#import "TIOLayerInterface.h"
+#import "TIOPixelBuffer.h"
+#import "NSDictionary+TIOData.h"
+#import "NSDictionary+TIOExtensions.h"
+#import "UIImage+TIOCVPixelBufferExtensions.h"
 
 /**
  * Image input keys.
