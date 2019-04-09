@@ -53,7 +53,8 @@ Uncomment the `platform :ios` line and make sure it is no lower than `9.3`. Unco
 Add TensorIO as a dependency under the `# Pods for MyProject ` comment:
 
 ```rb
-pod `TensorIO`
+pod 'TensorIO'
+pod 'TensorIO/TFLite'
 ```
 
 A new podfile should like something like:
@@ -69,6 +70,7 @@ target 'MyProject' do
   # Pods for MyProject
 
   pod 'TensorIO'
+  pod 'TensorIO/TFLite'
 
   target 'MyProjectTests' do
     inherit! :search_paths

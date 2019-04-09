@@ -17,7 +17,7 @@
 #import "TIOModel.h"
 #import "TIOLayerInterface.h"
 #import "TIOPixelBuffer.h"
-#import "NSDictionary+TIOData.h"
+#import "TIOData.h"
 #import "NSDictionary+TIOExtensions.h"
 #import "UIImage+TIOCVPixelBufferExtensions.h"
 
