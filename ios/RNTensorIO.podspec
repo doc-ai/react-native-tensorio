@@ -1,7 +1,7 @@
 
 Pod::Spec.new do |s|
   s.name        = 'RNTensorIO'
-  s.version     = '0.0.1'
+  s.version     = '0.3.0'
   s.summary     = 'Machine Learning for React Native with TensorIO'
   s.description = 'Perform inference with TensorFlow Lite mondels in React Native'
   s.homepage    = 'https://github.com/doc-ai/react-native-tensorio'
@@ -16,4 +16,5 @@ Pod::Spec.new do |s|
 
   s.dependency 'React'
   s.dependency 'TensorIO'
+  s.dependency 'TensorIO/TFLite'
 end

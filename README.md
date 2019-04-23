@@ -146,7 +146,8 @@ All this information appears in a bundle's *model.json* file. Let's have a look 
   "license": "Apache 2.0",
   "model": {
     "file": "model.tflite",
-    "quantized": false,
+    "backend": "tflite",
+    "quantized": false
   },
   "inputs": [
     {
@@ -239,6 +240,7 @@ Let's look at a basic image classification model and see how to use it in React 
   "license": "Apache License. Version 2.0 http://www.apache.org/licenses/LICENSE-2.0",
   "model": {
     "file": "model.tflite",
+    "backend": "tflite",
     "quantized": false,
   },
   "inputs": [
