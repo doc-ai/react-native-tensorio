@@ -196,10 +196,10 @@ RCT_EXPORT_METHOD(topN:(NSUInteger)count threshold:(float)threshold classificati
     if ([self isAbsoluteFilepath:path]) {
         absolutePath = path;
     } else {
-        if ([path.pathExtension isEqualToString:kTFModelBundleExtension]) {
+        if ([path.pathExtension isEqualToString:TIOModelBundleExtension]) {
             path = [path stringByDeletingPathExtension];
         }
-        absolutePath = [NSBundle.mainBundle pathForResource:path ofType:kTFModelBundleExtension];
+        absolutePath = [NSBundle.mainBundle pathForResource:path ofType:TIOModelBundleExtension];
     }
     
     return absolutePath;
