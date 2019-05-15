@@ -20,6 +20,9 @@
 #import "TIOData.h"
 #import "NSDictionary+TIOExtensions.h"
 #import "UIImage+TIOCVPixelBufferExtensions.h"
+#import "TIOBatch.h"
+#import "TIOTrainableModel.h"
+
 
 /**
  * Image input keys.
@@ -170,6 +173,56 @@ RCT_EXPORT_METHOD(run:(NSDictionary*)inputs callback:(RCTResponseSenderBlock)cal
     // Return results
     
     callback(@[NSNull.null, preparedResults]);
+}
+
+/**
+ *
+ *
+ */
+RCT_EXPORT_METHOD(train:(NSArray<NSDictionary *> *)inputSet callback:(RCTResponseSenderBlock)callback) {
+    
+    // Ensure that a model has been loaded
+    
+    if (self.model == nil) {
+        NSString *error = @"No model has been loaded. Call load() with the name of a model before calling run().";
+        callback(@[error, NSNull.null]);
+        return;
+    }
+    
+    // Initialize a TIOBatch to store the training samples
+    
+    TIOBatch *batch = [[TIOBatch alloc] initWithKeys:[self inputKeysForModel:self.model]];
+    
+    // Ensure that the provided keys match the model's expected keys, or return an error
+    
+    NSSet<NSString*> *expectedKeys = [NSSet setWithArray:[self inputKeysForModel:self.model]];
+    
+    for (NSDictionary *input in inputSet) {
+        NSSet<NSString*> *providedKeys = [NSSet setWithArray:input.allKeys];
+        
+        if (![expectedKeys isEqualToSet:providedKeys]) {
+            NSString *error = [NSString stringWithFormat:@"Provided inputs %@ don't match model's expected inputs %@", providedKeys, expectedKeys];
+            callback(@[error, NSNull.null]);
+            return;
+        }
+        
+        // Prepare inputs, converting base64 encoded image data or reading image data from the filesystem
+        
+        NSDictionary *preparedInputs = [self preparedInputs:input];
+        
+        if (preparedInputs == nil) {
+            NSString *error = @"There was a problem preparing the inputs. Ensure that your image inputs are property encoded.";
+            callback(@[error, NSNull.null]);
+            return;
+        }
+        
+        [batch addItem:preparedInputs];
+    }
+    
+    // Perform inference
+    
+    NSDictionary *results = (NSDictionary*)[(id<TIOTrainableModel>)self.model train:batch];
+    callback(@[NSNull.null, results]);
 }
 
 /**
