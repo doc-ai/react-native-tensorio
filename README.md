@@ -385,6 +385,7 @@ RNTensorIO.run({
 });
 ```
 
+
 #### isTrainable(callback)
 
 Returns true or false, indicating whether the model is trainable or not. Useful if you want to call the `train` function to train your model.
@@ -400,6 +401,7 @@ RNTensorIO.isTrainable((error, isTrainable) => {
   }
 });
 ```
+
 
 #### train(input, callback)
 
