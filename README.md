@@ -385,6 +385,32 @@ RNTensorIO.run({
 });
 ```
 
+#### train(input, callback)
+
+Perform model training on the inputs provided. 
+
+**Important:** Please ensure that the training model is loaded before this method is called. For the moment, the model used
+for inference is different from the one used for training.  
+
+The input must be a javascript object whose name-value pairs match the names expected by the underlying model's inputs and which are described in the model bundle's *model.json* file.
+
+The callback has the signature `(error, results) => { ... }`. If there was a problem performing inference, error will be set to a string value describing the problem. It will be null otherwise.
+
+Usage:
+
+```js
+RNTensorIO.train([{
+  'input': [1]
+  'label': [0]
+}], (error, results) => {
+  if (error) {
+    // handle error
+  } else {
+    console.log(results);
+  }
+});
+```
+
 #### unload()
 
 Unloads the loaded model and frees the underlying resources. Explicitly unload models when you are done with them to aggressively manage the application's memory footprint.
