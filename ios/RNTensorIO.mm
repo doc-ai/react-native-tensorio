@@ -22,6 +22,7 @@
 #import "UIImage+TIOCVPixelBufferExtensions.h"
 #import "TIOBatch.h"
 #import "TIOTrainableModel.h"
+#import "TIOModelModes.h"
 
 
 /**
@@ -125,8 +126,8 @@ RCT_EXPORT_METHOD(unload) {
  */
 
 RCT_EXPORT_METHOD(isTrainable:(RCTResponseSenderBlock)callback) {
-    BOOL isTrainable = [self.model conformsToProtocol:@protocol(TIOTrainableModel)];
-    callback(@[NSNull.null, @(isTrainable)]);
+    TIOModelModes* modes = [self.model modes];
+    callback(@[NSNull.null, @([modes trains])]);
 }
 
 /**
