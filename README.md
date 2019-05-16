@@ -385,7 +385,7 @@ RNTensorIO.run({
 });
 ```
 
-#### run(input, callback)
+#### train(input, callback)
 
 Perform model training on the inputs provided. 
 
