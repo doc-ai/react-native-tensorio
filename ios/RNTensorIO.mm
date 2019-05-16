@@ -121,6 +121,15 @@ RCT_EXPORT_METHOD(unload) {
 }
 
 /**
+ * Bridged method that unloads a model, freeing the underlying resources.
+ */
+
+RCT_EXPORT_METHOD(isTrainable:(RCTResponseSenderBlock)callback) {
+    BOOL isTrainable = [self.model conformsToProtocol:@protocol(TIOTrainableModel)];
+    callback(@[NSNull.null, @(isTrainable)]);
+}
+
+/**
  * Bridged methods that performs inference with a loaded model and returns the
  * results.
  */
