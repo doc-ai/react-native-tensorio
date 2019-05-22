@@ -126,8 +126,7 @@ RCT_EXPORT_METHOD(unload) {
  */
 
 RCT_EXPORT_METHOD(isTrainable:(RCTResponseSenderBlock)callback) {
-    TIOModelModes* modes = [self.model modes];
-    callback(@[NSNull.null, @([modes trains])]);
+    callback(@[NSNull.null, @(self.model.modes.trains)]);
 }
 
 /**
