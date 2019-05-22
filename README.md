@@ -385,11 +385,29 @@ RNTensorIO.run({
 });
 ```
 
+
+#### isTrainable(callback)
+
+Returns true or false, indicating whether the model is trainable or not. Useful if you want to call the `train` function to train your model.
+
+Usage:
+
+```js
+RNTensorIO.isTrainable((error, isTrainable) => {
+  if (error) {
+    // handle error
+  } else {
+    console.log(`Is this model trainable? ${isTrainable}`);
+  }
+});
+```
+
+
 #### train(input, callback)
 
 Perform model training on the inputs provided. 
 
-**Important:** Please ensure that the training model is loaded before this method is called. For the moment, the model used
+**Important:** Please ensure that the training model is loaded before this method is called. You may programatically verify this by using the `isTrainable` function. For the moment, the model used
 for inference is different from the one used for training.  
 
 The input must be a javascript object whose name-value pairs match the names expected by the underlying model's inputs and which are described in the model bundle's *model.json* file.

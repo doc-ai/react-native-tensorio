@@ -22,6 +22,7 @@
 #import "UIImage+TIOCVPixelBufferExtensions.h"
 #import "TIOBatch.h"
 #import "TIOTrainableModel.h"
+#import "TIOModelModes.h"
 
 
 /**
@@ -118,6 +119,14 @@ RCT_EXPORT_METHOD(load:(NSString*)path) {
 RCT_EXPORT_METHOD(unload) {
     [self.model unload];
     self.model = nil;
+}
+
+/**
+ * Bridged method that unloads a model, freeing the underlying resources.
+ */
+
+RCT_EXPORT_METHOD(isTrainable:(RCTResponseSenderBlock)callback) {
+    callback(@[NSNull.null, @(self.model.modes.trains)]);
 }
 
 /**
