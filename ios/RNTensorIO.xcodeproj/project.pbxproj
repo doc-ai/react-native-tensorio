@@ -234,7 +234,7 @@
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/../../../React/**",
 					"$(SRCROOT)/../../react-native/React/**",
-					"${SRCROOT}/../../../ios/Pods/TensorIO/TensorIO/**",
+					"${SRCROOT}/../../../ios/Pods/**",
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				OTHER_CFLAGS = (
@@ -261,7 +261,7 @@
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/../../../React/**",
 					"$(SRCROOT)/../../react-native/React/**",
-					"${SRCROOT}/../../../ios/Pods/TensorIO/TensorIO/**",
+					"${SRCROOT}/../../../ios/Pods/**",
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				OTHER_CFLAGS = (
