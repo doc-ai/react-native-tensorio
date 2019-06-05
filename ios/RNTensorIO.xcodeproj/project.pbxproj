@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		A50530F8229E2285003CD27B /* RNModelRepository.mm in Sources */ = {isa = PBXBuildFile; fileRef = A50530F7229E2285003CD27B /* RNModelRepository.mm */; };
+		A54FF36422A1E003004CE6BF /* RNFleaClient.mm in Sources */ = {isa = PBXBuildFile; fileRef = A54FF36322A1E003004CE6BF /* RNFleaClient.mm */; };
 		B3E7B58A1CC2AC0600A0062D /* RNTensorIO.mm in Sources */ = {isa = PBXBuildFile; fileRef = B3E7B5891CC2AC0600A0062D /* RNTensorIO.mm */; };
 		E30C3B8722091F05006D99F3 /* RNPixelBufferUtilities.mm in Sources */ = {isa = PBXBuildFile; fileRef = E30C3B8622091F05006D99F3 /* RNPixelBufferUtilities.mm */; };
 /* End PBXBuildFile section */
@@ -28,6 +29,8 @@
 		134814201AA4EA6300B7C361 /* libRNTensorIO.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRNTensorIO.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		A50530F6229E223C003CD27B /* RNModelRepository.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RNModelRepository.h; sourceTree = "<group>"; };
 		A50530F7229E2285003CD27B /* RNModelRepository.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = RNModelRepository.mm; sourceTree = "<group>"; };
+		A54FF36222A1DFDD004CE6BF /* RNFleaClient.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RNFleaClient.h; sourceTree = "<group>"; };
+		A54FF36322A1E003004CE6BF /* RNFleaClient.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = RNFleaClient.mm; sourceTree = "<group>"; };
 		B3E7B5881CC2AC0600A0062D /* RNTensorIO.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RNTensorIO.h; sourceTree = "<group>"; };
 		B3E7B5891CC2AC0600A0062D /* RNTensorIO.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RNTensorIO.mm; sourceTree = "<group>"; };
 		E30C3B8522091F05006D99F3 /* RNPixelBufferUtilities.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RNPixelBufferUtilities.h; sourceTree = "<group>"; };
@@ -56,6 +59,8 @@
 		58B511D21A9E6C8500147676 = {
 			isa = PBXGroup;
 			children = (
+				A54FF36322A1E003004CE6BF /* RNFleaClient.mm */,
+				A54FF36222A1DFDD004CE6BF /* RNFleaClient.h */,
 				A50530F7229E2285003CD27B /* RNModelRepository.mm */,
 				A50530F6229E223C003CD27B /* RNModelRepository.h */,
 				B3E7B5881CC2AC0600A0062D /* RNTensorIO.h */,
@@ -130,6 +135,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A54FF36422A1E003004CE6BF /* RNFleaClient.mm in Sources */,
 				A50530F8229E2285003CD27B /* RNModelRepository.mm in Sources */,
 				B3E7B58A1CC2AC0600A0062D /* RNTensorIO.mm in Sources */,
 				E30C3B8722091F05006D99F3 /* RNPixelBufferUtilities.mm in Sources */,
