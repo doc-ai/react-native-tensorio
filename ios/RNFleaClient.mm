@@ -121,6 +121,16 @@ RCT_EXPORT_METHOD(initialize:(NSString*)baseUrl authToken:(NSString*)authToken c
     }];
 }
 
+RCT_EXPORT_METHOD(unregisterTasks) {
+    if (self.manager == nil) {
+        return;
+    }
+    
+    [self.manager.registeredModelIds enumerateObjectsUsingBlock:^(NSString * _Nonnull obj, BOOL * _Nonnull stop) {
+        [self.manager unregisterForTasksForModelWithId:obj];
+    }];
+}
+
 RCT_EXPORT_METHOD(checkTasksForModel:(NSString*)modelPath callback:(RCTResponseSenderBlock)callback) {
     //Get model bundle from url
     TIOModelBundle *bundle = [[TIOModelBundle alloc] initWithPath:modelPath];
@@ -165,6 +175,8 @@ RCT_EXPORT_METHOD(train:(NSString*)modelPath trainingSet:(NSArray<NSDictionary *
     return self.trainingModelBundle;
 }
 
+// MARK: - Batch Data Source 
+
 - (NSArray<NSString*>*)keys {
     return [self inputKeysForModel:self.trainingModel];
 }
@@ -197,6 +209,8 @@ RCT_EXPORT_METHOD(train:(NSString*)modelPath trainingSet:(NSArray<NSDictionary *
     
     return (TIOBatchItem *)preparedInputs;
 }
+
+// MARK: - Federated Manager Delegate Methods
 
 - (void)federatedManager:(TIOFederatedManager*)manager didBeginAction:(TIOFederatedManagerAction)action {
     NSLog(@"didBeginAction: %ld", action);
