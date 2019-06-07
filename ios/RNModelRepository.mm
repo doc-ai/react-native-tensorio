@@ -4,8 +4,10 @@
 #import "TIOModelRepositoryClient.h"
 #import "TIOModelBundle.h"
 #import "TIOModelUpdater.h"
+#import "TIOMRClientSessionDelegate.h"
+#import "TIOModelUpdaterDelegate.h"
 
-@interface RNModelRepository()
+@interface RNModelRepository() <TIOModelUpdaterDelegate>
 
 @property TIOModelRepositoryClient* repositoryClient;
 @property TIOModelUpdater* updater;
@@ -19,6 +21,8 @@ RCT_EXPORT_MODULE();
 RCT_EXPORT_METHOD(initialize:(NSString*)baseUrl authToken:(NSString*)authToken callback:(RCTResponseSenderBlock)callback) {
     NSURL *URL = [NSURL URLWithString:baseUrl];
     
+    // API Session Configfuration
+    
     NSURLSessionConfiguration *configuration = NSURLSessionConfiguration.defaultSessionConfiguration;
     configuration.HTTPAdditionalHeaders = @{
         @"Authorization": authToken
@@ -26,7 +30,15 @@ RCT_EXPORT_METHOD(initialize:(NSString*)baseUrl authToken:(NSString*)authToken c
     
     NSURLSession *URLSession = [NSURLSession sessionWithConfiguration:configuration];
     
-    self.repositoryClient = [[TIOModelRepositoryClient alloc] initWithBaseURL:URL session:URLSession downloadSession:nil];
+    // Download Session Configuration
+    
+    NSURLSessionConfiguration *backgroundConfiguration = [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier:TIOModelRepositoryClient.backgroundSessionIdentifier];
+    TIOMRClientSessionDelegate *delegate = [[TIOMRClientSessionDelegate alloc] init];
+    NSURLSession *downloadSession = [NSURLSession sessionWithConfiguration:backgroundConfiguration delegate:delegate delegateQueue:nil];
+    
+    // Set Up Client
+    
+    self.repositoryClient = [[TIOModelRepositoryClient alloc] initWithBaseURL:URL session:URLSession downloadSession:downloadSession];
     
     [self.repositoryClient GETHealthStatus:^(TIOMRStatus * _Nullable response, NSError * _Nonnull error) {
         if (error) {
@@ -44,6 +56,7 @@ RCT_EXPORT_METHOD(checkForModelUpdate:(NSString*)pathToFile callback:(RCTRespons
     
     //Use updator to actually update model
     self.updater = [[TIOModelUpdater alloc] initWithModelBundle:bundle repository:self.repositoryClient];
+    self.updater.delegate = self;
     
     [self.updater checkForUpdate:^(BOOL updateAvailable, NSError * _Nullable error) {
         if (error != nil) {
@@ -70,6 +83,7 @@ RCT_EXPORT_METHOD(updateModel:(NSString*)pathToFile callback:(RCTResponseSenderB
 
     //Use updator to actually update model
     self.updater = [[TIOModelUpdater alloc] initWithModelBundle:bundle repository:self.repositoryClient];
+    self.updater.delegate = self;
 
     [self.updater updateWithValidator:nil callback:^(BOOL updated, NSURL * _Nullable updatedBundleURL, NSError * _Nullable error) {
         if (error != nil) {
@@ -87,6 +101,18 @@ RCT_EXPORT_METHOD(updateModel:(NSString*)pathToFile callback:(RCTResponseSenderB
         // Free the updater reference, so we can call updateModel again
         self.updater = nil;
     }];
+}
+
+- (NSArray<NSString *> *)supportedEvents
+{
+    return @[@"DownloadProgress"];
+}
+
+
+// MARK: - TIOModelUpdaterDelegate
+
+- (void)modelUpdater:(TIOModelRepositoryClient*)client didProgress:(float)progress {
+    [self sendEventWithName:@"DownloadProgress" body:@{@"progress": @(progress)}];
 }
 
 @end

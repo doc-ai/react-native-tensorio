@@ -16,6 +16,7 @@
 #import "TIOBatchDataSource.h"
 #import "TIOFederatedManagerDelegate.h"
 #import "TIOFederatedManagerDataSourceProvider.h"
+#import "TIOFleaClientSessionDelegate.h"
 
 /**
  * Image input keys.
@@ -83,7 +84,7 @@ RCT_ENUM_CONVERTER(CGImagePropertyOrientation, (@{
 @property TIOFleaClient* fleaClient;
 @property TIOFederatedManager *manager;
 @property NSArray<NSDictionary *> *trainingSet;
-@property RCTResponseSenderBlock trainingCallback;
+@property RCTResponseSenderBlock trainingFinishCb;
 @property TIOModelBundle* trainingModelBundle;
 @property id<TIOModel> trainingModel;
 
@@ -96,6 +97,8 @@ RCT_EXPORT_MODULE();
 RCT_EXPORT_METHOD(initialize:(NSString*)baseUrl authToken:(NSString*)authToken callback:(RCTResponseSenderBlock)callback) {
     NSURL *URL = [NSURL URLWithString:baseUrl];
     
+    // API Session Configfuration
+    
     NSURLSessionConfiguration *configuration = NSURLSessionConfiguration.defaultSessionConfiguration;
     configuration.HTTPAdditionalHeaders = @{
         @"Authorization": authToken
@@ -103,7 +106,15 @@ RCT_EXPORT_METHOD(initialize:(NSString*)baseUrl authToken:(NSString*)authToken c
     
     NSURLSession *URLSession = [NSURLSession sessionWithConfiguration:configuration];
     
-    self.fleaClient = [[TIOFleaClient alloc] initWithBaseURL:URL session:URLSession downloadSession:nil];
+    // Download Session Configuration
+    
+    NSURLSessionConfiguration *backgroundConfiguration = [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier:TIOFleaClient.backgroundSessionIdentifier];
+    TIOFleaClientSessionDelegate *delegate = [[TIOFleaClientSessionDelegate alloc] init];
+    NSURLSession *downloadSession = [NSURLSession sessionWithConfiguration:backgroundConfiguration delegate:delegate delegateQueue:nil];
+    
+    // Set Up Client
+    
+    self.fleaClient = [[TIOFleaClient alloc] initWithBaseURL:URL session:URLSession downloadSession:downloadSession];
     
     // Immediately perform a health check
     
@@ -148,9 +159,9 @@ RCT_EXPORT_METHOD(checkTasksForModel:(NSString*)modelPath callback:(RCTResponseS
     }];
 }
 
-RCT_EXPORT_METHOD(train:(NSString*)modelPath trainingSet:(NSArray<NSDictionary *> *)trainingSet callback:(RCTResponseSenderBlock)callback) {
+RCT_EXPORT_METHOD(train:(NSString*)modelPath trainingSet:(NSArray<NSDictionary *> *)trainingSet doneCb:(RCTResponseSenderBlock)doneCb) {
     self.trainingSet = trainingSet;
-    self.trainingCallback = callback;
+    self.trainingFinishCb = doneCb;
     self.trainingModelBundle = [[TIOModelBundle alloc] initWithPath:modelPath];
     // TODO: bundle can be nil
     self.trainingModel = self.trainingModelBundle.newModel;
@@ -168,11 +179,16 @@ RCT_EXPORT_METHOD(train:(NSString*)modelPath trainingSet:(NSArray<NSDictionary *
     if (![self.trainingModelBundle.identifier isEqualToString:modelIdentifier]) {
         NSString *errorStr = [NSString stringWithFormat:@"Training model bundle with identifier %@ does not match requested identifier %@", self.trainingModelBundle.identifier, modelIdentifier];
         NSLog(errorStr);
-        self.trainingCallback(@[errorStr, NSNull.null]);
+        self.trainingFinishCb(@[errorStr, NSNull.null]);
         return nil;
     }
     
     return self.trainingModelBundle;
+}
+
+- (NSArray<NSString *> *)supportedEvents
+{
+    return @[@"UploadProgress"];
 }
 
 // MARK: - Batch Data Source 
@@ -193,7 +209,7 @@ RCT_EXPORT_METHOD(train:(NSString*)modelPath trainingSet:(NSArray<NSDictionary *
     
     if (![expectedKeys isEqualToSet:providedKeys]) {
         NSString *error = [NSString stringWithFormat:@"Provided inputs %@ don't match model's expected inputs %@", providedKeys, expectedKeys];
-        self.trainingCallback(@[error, NSNull.null]);
+        self.trainingFinishCb(@[error, NSNull.null]);
         return nil;
     }
     
@@ -203,7 +219,7 @@ RCT_EXPORT_METHOD(train:(NSString*)modelPath trainingSet:(NSArray<NSDictionary *
     
     if (preparedInputs == nil) {
         NSString *error = @"There was a problem preparing the inputs. Ensure that your image inputs are property encoded.";
-        self.trainingCallback(@[error, NSNull.null]);
+        self.trainingFinishCb(@[error, NSNull.null]);
         return nil;
     }
     
@@ -220,12 +236,20 @@ RCT_EXPORT_METHOD(train:(NSString*)modelPath trainingSet:(NSArray<NSDictionary *
 }
 - (void)federatedManager:(TIOFederatedManager *)manager didCompleteTaskWithId:(NSString*)taskId {
     NSLog(@"didCompleteTaskWithId: %@", taskId);
-    self.trainingCallback(@[NSNull.null, NSNull.null]);
+    self.trainingFinishCb(@[NSNull.null, NSNull.null]);
 }
 - (void)federatedManager:(TIOFederatedManager*)manager didFailWithError:(NSError*)error forAction:(TIOFederatedManagerAction)action {
     NSLog(@"Error: %@", error);
-    self.trainingCallback(@[[error localizedDescription], NSNull.null]);
+    self.trainingFinishCb(@[[error localizedDescription], NSNull.null]);
 }
+
+- (void)federatedManager:(TIOFederatedManager*)manager didProgress:(float)progress forAction:(TIOFederatedManagerAction)action {
+    if ( action == TIOFederatedManagerUploadTaskResults ) {
+        [self sendEventWithName:@"UploadProgress" body:@{@"progress": @(progress)}];
+    }
+}
+
+// MARK: -
 
 - (NSArray<NSString*>*)inputKeysForModel:(id<TIOModel>)model {
     NSMutableArray<NSString*> *keys = [[NSMutableArray alloc] init];
