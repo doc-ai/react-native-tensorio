@@ -23,6 +23,7 @@
 #import "TIOBatch.h"
 #import "TIOTrainableModel.h"
 #import "TIOModelModes.h"
+#import "TIOModelIO.h"
 
 
 /**
@@ -285,7 +286,7 @@ RCT_EXPORT_METHOD(topN:(NSUInteger)count threshold:(float)threshold classificati
 
 - (NSArray<NSString*>*)inputKeysForModel:(id<TIOModel>)model {
     NSMutableArray<NSString*> *keys = [[NSMutableArray alloc] init];
-    for (TIOLayerInterface *input in model.inputs) {
+    for (TIOLayerInterface *input in model.io.inputs.all) {
         [keys addObject:input.name];
     }
     return keys.copy;
@@ -304,7 +305,7 @@ RCT_EXPORT_METHOD(topN:(NSUInteger)count threshold:(float)threshold classificati
     NSMutableDictionary<NSString*, id<TIOData>> *preparedInputs = [[NSMutableDictionary alloc] init];
     __block BOOL error = NO;
     
-    for (TIOLayerInterface *layer in self.model.inputs) {
+    for (TIOLayerInterface *layer in self.model.io.inputs.all) {
         [layer matchCasePixelBuffer:^(TIOPixelBufferLayerDescription * _Nonnull pixelBufferDescription) {
             TIOPixelBuffer *pixelBuffer = [self pixelBufferForInput:inputs[layer.name]];
             if (pixelBuffer == nil) {
@@ -313,6 +314,8 @@ RCT_EXPORT_METHOD(topN:(NSUInteger)count threshold:(float)threshold classificati
                 preparedInputs[layer.name] = pixelBuffer;
             }
         } caseVector:^(TIOVectorLayerDescription * _Nonnull vectorDescription) {
+            preparedInputs[layer.name] = inputs[layer.name];
+        } caseString:^(TIOStringLayerDescription * _Nonnull stringDescription) {
             preparedInputs[layer.name] = inputs[layer.name];
         }];
     }
@@ -432,7 +435,7 @@ RCT_EXPORT_METHOD(topN:(NSUInteger)count threshold:(float)threshold classificati
     NSMutableDictionary *preparedOutputs = [[NSMutableDictionary alloc] init];
     __block BOOL error = NO;
     
-    for (TIOLayerInterface *layer in self.model.outputs) {
+    for (TIOLayerInterface *layer in self.model.io.outputs.all) {
         [layer matchCasePixelBuffer:^(TIOPixelBufferLayerDescription * _Nonnull pixelBufferDescription) {
             NSString *base64 = [self base64JPEGDataForPixelBuffer:outputs[layer.name]];
             if (base64 == nil) {
@@ -441,6 +444,8 @@ RCT_EXPORT_METHOD(topN:(NSUInteger)count threshold:(float)threshold classificati
                 preparedOutputs[layer.name] = base64;
             }
         } caseVector:^(TIOVectorLayerDescription * _Nonnull vectorDescription) {
+            preparedOutputs[layer.name] = outputs[layer.name];
+        } caseString:^(TIOStringLayerDescription * _Nonnull stringDescription) {
             preparedOutputs[layer.name] = outputs[layer.name];
         }];
     }
