@@ -9,7 +9,7 @@ Pod::Spec.new do |s|
   s.authors     = { 'doc.ai' => 'philip@doc.ai' }
   s.source      = { :git => 'https://github.com/doc-ai/react-native-tensorio.git', :tag => s.version.to_s }
   
-  s.ios.deployment_target   = '9.3'
+  s.ios.deployment_target   = '12.0'
   s.source_files            = '*.{h,m,mm}'
   s.requires_arc            = true
   s.static_framework        = true
