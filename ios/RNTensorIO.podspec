@@ -16,5 +16,5 @@ Pod::Spec.new do |s|
 
   s.dependency 'React'
   s.dependency 'TensorIO'
-  s.dependency 'TensorIO/TensorFlow'
+  s.dependency 'TensorIO/TFLite'
 end
