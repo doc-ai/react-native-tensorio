@@ -2,6 +2,14 @@
 
 Machine learning for your React Native projects, using TensorIO and TensorFlow Lite. See our example project, [TensorIOExample](https://github.com/doc-ai/react-native-tensorio-example).
 
+<span style="color:red;">**DEPRECATED**</span>
+
+See instead:
+
+https://github.com/doc-ai/react-native-tensorio-tflite
+
+https://github.com/doc-ai/react-native-tensorio-tensorflow
+
 <a name="support"></a>
 ## Support
 
